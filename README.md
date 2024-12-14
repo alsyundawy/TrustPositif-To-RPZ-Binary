@@ -4,5 +4,5 @@
 
 
  
-wget -c  https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz
-chmod +X /usr/local/bin/rpz
+sudo wget -c https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz ; sudo chmod +x /usr/local/bin/rpz
+
