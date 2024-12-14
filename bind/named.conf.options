@@ -1,12 +1,19 @@
+acl localnet {
+    10.0.0.0/8;
+    172.16.0.0/12;
+    192.168.0.0/16;    
+    localhost; 
+    127.0.0.1;
+};
+
 options {
 	directory "/var/cache/bind";
 	listen-on port 53 { any; };
 	listen-on-v6 port 53 { any; };
 
-		
-	max-cache-size 	384M;      // maximum cache size of 10MB
-	max-cache-ttl 1800;        // limit cached record to a 60s TTL
-	max-ncache-ttl 1800;       // limit cache neg. resp. to a 60s TTL
+	max-cache-size 	1G;      // maximum cache size of 10MB
+	max-cache-ttl 3600;        // limit cached record to a 60s TTL
+	max-ncache-ttl 3600;       // limit cache neg. resp. to a 60s TTL
 	
 	// ACL for recursion
 
@@ -33,9 +40,37 @@ options {
 		//8.8.8.8;
 		//1.1.1.2;
 	};
-
-	dnssec-validation auto;
-	recursive-clients 4096;
+    // Rate limiting to prevent abuse
+    rate-limit {
+        responses-per-second 92;
+        all-per-second 256;
+        window 3;
+        max-table-size 5000;
+        min-table-size 500;
+        ipv4-prefix-length 32;
+        ipv6-prefix-length 64;
+        slip 2;
+        errors-per-second 10;
+        nxdomains-per-second 80;
+        qps-scale 300;
+        log-only no;
+    };
+	
+	dnssec-validation no;
+	minimal-responses yes;            // Minimal responses to reduce traffic
+    auth-nxdomain no;                 # conform to RFC1035
+    request-ixfr yes;
+    tcp-clients 3000;                // High limit for TCP clients
+    recursive-clients 3000;          // High limit for recursive clients
+	ixfr-from-differences yes;
 	max-udp-size 2048;
 
+};
+
+
+include "/etc/bind/rndc.key";
+
+controls {
+	inet 127.0.0.1 port 953
+		allow { 127.0.0.1; } keys { "rndc-key"; };
 };
