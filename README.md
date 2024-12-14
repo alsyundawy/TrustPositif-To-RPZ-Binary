@@ -8,6 +8,7 @@ sudo wget -c https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/h
 
 rpz
 
-<img width="743" alt="image" src="https://github.com/user-attachments/assets/ace843cf-e835-49ff-8bed-8438d4890e60" />
+<img width="736" alt="image" src="https://github.com/user-attachments/assets/43781839-88b9-43a0-ac80-3473a624305a" />
+
 
 
