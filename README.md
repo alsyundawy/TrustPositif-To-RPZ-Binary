@@ -6,7 +6,7 @@
  
 sudo wget -c https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz ; sudo chmod +x /usr/local/bin/rpz
 
-rpz
+sudo rpz
 
 <img width="736" alt="image" src="https://github.com/user-attachments/assets/43781839-88b9-43a0-ac80-3473a624305a" />
 
