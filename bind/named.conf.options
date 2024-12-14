@@ -1,7 +1,7 @@
 options {
 	directory "/var/cache/bind";
-	listen-on port 53 { 127.0.0.1; 43.247.23.100; };
-	listen-on-v6 port 53 { ::1; 2402:1200:155:23:43:247:23:100; };
+	listen-on port 53 { any; };
+	listen-on-v6 port 53 { any; };
 
 		
 	max-cache-size 	384M;      // maximum cache size of 10MB
