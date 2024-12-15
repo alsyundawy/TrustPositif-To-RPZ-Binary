@@ -28,25 +28,35 @@ options {
 	response-policy { 
 			zone "trustpositif" policy given;
 			}
-	break-dnssec yes qname-wait-recurse no max-policy-ttl 60s;	
+	max-policy-ttl 60s;	
 
     // Security settings
     version "not currently available"; // Hide version number
-    recursion yes;                     // Enable recursion
-    querylog no;                       // Disable query log (for performance)
 
 	// Forwarders
 	forwarders {
 		//8.8.8.8;
 		//1.1.1.2;
 	};
-    // Rate limiting to prevent abuse
+    // Disable query log (for performance)
+    querylog no;
+	
+    // Enable recursion
+    recursion yes;
+	
+    // Security and performance settings
+    dnssec-validation no;
+    minimal-responses yes;
+    auth-nxdomain no;  # Conform to RFC1035
+    request-ixfr yes;
+
+    // Rate limiting
     rate-limit {
-        responses-per-second 92;
+        responses-per-second 64;
         all-per-second 256;
         window 3;
-        max-table-size 5000;
-        min-table-size 500;
+        max-table-size 4096;
+        min-table-size 1024;
         ipv4-prefix-length 32;
         ipv6-prefix-length 64;
         slip 2;
@@ -55,18 +65,12 @@ options {
         qps-scale 300;
         log-only no;
     };
-	
-	dnssec-validation no;
-	minimal-responses yes;            // Minimal responses to reduce traffic
-    auth-nxdomain no;                 # conform to RFC1035
-    request-ixfr yes;
-    tcp-clients 3000;                // High limit for TCP clients
-    recursive-clients 3000;          // High limit for recursive clients
-	ixfr-from-differences yes;
-	max-udp-size 2048;
 
+    // Client limits for 5555 clients
+    tcp-clients 3000;          # Match the number of expected clients
+    recursive-clients 3000;    # Slightly higher than client count
+    tcp-listen-queue 1024;     # Increase the backlog queue size
 };
-
 
 include "/etc/bind/rndc.key";
 
