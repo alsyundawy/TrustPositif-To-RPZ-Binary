@@ -11,9 +11,9 @@ $TTL 2h
 @ IN SOA dns.domain.net.id. hostmaster.domain.net.id. (
     2024121655 ; Serial
     3600  ; Refresh
-    600 ; Retry
-    1209600 ; Expire
-    86400 ; Negative Cache TTL
+    1200 ; Retry
+    604800 ; Expire
+    10800 ; Negative Cache TTL
 )
 @ IN NS lamanlabuh.resolver.id.
 google.com IN CNAME forcesafesearch.google.com.
