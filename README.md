@@ -2,7 +2,7 @@
  TrustPositif To RPZ Binary adalah file binary merubah file list domain trustpositif dari kominfo menjadi format dns rpz.
  Hanya digunakan pada dns bind9 pada distro linux debian atau ubuntu, belum dicoba di unbound atau distro linux lainnya.
 
-Debian / Ubuntu 
+Debian / Ubuntu , Install pkg ISC Bind9 
 
 sudo apt update; sudo apt install bind9 dnsutils
  
