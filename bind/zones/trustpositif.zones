@@ -1,0 +1,25 @@
+; FILE GENERATED ON: 16-Dec-24
+; LAST MODIFIED: 16-Dec-24
+; VERSION:  2024121655
+; SYNTAX: RPZ
+; AUTHORS: HARRY DERTIN SUTISNA ALSYUNDAWY
+; Email: alsyundawy@gmail.com
+; WhatsApp/Telegram/Call: +628568515212
+; HOMEPAGE: https://github.com/alsyundawy
+
+$TTL 2h
+@ IN SOA dns.domain.net.id. hostmaster.domain.net.id. (
+    2024121655 ; Serial
+    3600  ; Refresh
+    600 ; Retry
+    1209600 ; Expire
+    86400 ; Negative Cache TTL
+)
+@ IN NS lamanlabuh.resolver.id.
+
+
+*.pornhub.com 3600 IN CNAME lamanlabuh.resolver.id.
+pornhub.com 3600 IN CNAME lamanlabuh.resolver.id.
+judislot.com 3600 IN CNAME lamanlabuh.resolver.id.
+*.judislot.com 3600 IN CNAME lamanlabuh.resolver.id.
+
