@@ -12,3 +12,11 @@ zone "trustpositif" IN {
       allow-query {any;};
       allow-update {none;};
 };
+
+zone "safesearch" IN {
+      type master;
+      file "/etc/bind/zones/safesearch.zones";
+      allow-query {any;};
+      allow-update {none;};
+};
+

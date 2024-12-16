@@ -17,16 +17,17 @@ options {
 	
 	// ACL for recursion
 
-	allow-query		{ any; };
-	allow-query-on	{ any; };
-	allow-recursion			{	any; };
-	allow-recursion-on		{	any; };
-	allow-query-cache		{	any; };
-	allow-query-cache-on	{	any; };
+	allow-query		{ localnet; };
+	allow-query-on	{ localnet; };
+	allow-recursion			{	localnet; };
+	allow-recursion-on		{	localnet; };
+	allow-query-cache		{	localnet; };
+	allow-query-cache-on	{	localnet; };
 	
 	// Enable RPZ
 	response-policy { 
 			zone "trustpositif" policy given;
+			zone "safesearch" policy given;
 			}
 	max-policy-ttl 60s;	
 
@@ -38,6 +39,7 @@ options {
 		//8.8.8.8;
 		//1.1.1.2;
 	};
+
     // Disable query log (for performance)
     querylog no;
 	
@@ -53,7 +55,7 @@ options {
     // Rate limiting
     rate-limit {
         responses-per-second 64;
-        all-per-second 256;
+        all-per-second 128;
         window 3;
         max-table-size 4096;
         min-table-size 1024;
@@ -66,7 +68,7 @@ options {
         log-only no;
     };
 
-    // Client limits for 5555 clients
+    // Client limits for 3000 clients
     tcp-clients 3000;          # Match the number of expected clients
     recursive-clients 3000;    # Slightly higher than client count
     tcp-listen-queue 1024;     # Increase the backlog queue size
