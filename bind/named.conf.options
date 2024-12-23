@@ -29,7 +29,12 @@ options {
 			zone "trustpositif" policy given;
 			zone "safesearch" policy given;
 			}
-	max-policy-ttl 60s;	
+	break-dnssec yes
+	qname-wait-recurse no
+	recursive-only yes
+	nsip-wait-recurse no
+	max-policy-ttl 60s;
+	
 
     // Security settings
     version "not currently available"; // Hide version number
