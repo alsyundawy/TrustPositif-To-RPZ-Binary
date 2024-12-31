@@ -20,3 +20,10 @@ zone "safesearch" IN {
       allow-update {none;};
 };
 
+zone "whitelist" IN {
+      type master;
+      file "/etc/bind/zones/whitelist.zones";
+      allow-query {any;};
+      allow-update {none;};
+};
+
