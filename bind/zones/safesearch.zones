@@ -1,21 +1,24 @@
-; FILE GENERATED ON: 16-Dec-24
-; LAST MODIFIED: 16-Dec-24
-; VERSION:  2024121655
-; SYNTAX: RPZ
-; AUTHORS: HARRY DERTIN SUTISNA ALSYUNDAWY
-; Email: alsyundawy@gmail.com
-; WhatsApp/Telegram/Call: +628568515212
-; HOMEPAGE: https://github.com/alsyundawy
+;
+; FILE GENERATED ON	: 01-Jan-25
+; VERSION				: 2025010179
+; SYNTAX				: RPZ
+; AUTHORS				: HARRY DERTIN SUTISNA ALSYUNDAWY
+; CONTACT				: ALSYUNDAWY@GMAIL.COM, +628568515212 (WHATSAPP/TELEGRAM/CALL)
+; HOMEPAGE			: HTTPS://GITHUB.COM/ALSYUNDAWY
+;
 
-$TTL 2h
+$TTL 600
 @ IN SOA dns.domain.net.id. hostmaster.domain.net.id. (
-    2024121655 ; Serial
-    3600  ; Refresh
-    1200 ; Retry
-    604800 ; Expire
-    10800 ; Negative Cache TTL
+    2025010179 ; Serial
+    1200        ; Refresh
+    600         ; Retry
+    86400       ; Expire
+    600         ; Negative Cache TTL
 )
+
+
 @ IN NS lamanlabuh.resolver.id.
+
 google.com IN CNAME forcesafesearch.google.com.
 www.google.com IN CNAME forcesafesearch.google.com.
 google.ad IN CNAME forcesafesearch.google.com.
