@@ -47,8 +47,11 @@ sudo wget -cq https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-B
 sudo wget -cq https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz
 sudo chmod +x /usr/local/bin/rpz
 
+(crontab -l 2>/dev/null; echo "* */12 * * * /usr/local/bin/rpz > /dev/null 2>&1") | sudo crontab -
+
 # Menjalankan RPZ binary
 sudo rpz
+
 
 
 ````
