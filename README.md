@@ -17,6 +17,7 @@
 ## Debian / Ubuntu , Install ISC Bind9 
 
 ````
+
 #!/bin/bash
 
 # Update and install necessary packages
@@ -36,7 +37,19 @@ sudo wget -cq https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-B
 sudo wget -cq https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz
 sudo chmod +x /usr/local/bin/rpz
 sudo rpz
+
 ````
+
+## Setup Crontab Auto Update Database Setiap 12 Jam
+
+````
+
+crontab -e
+
+* */12 * * * /usr/local/bin/rpz > /dev/null 2>&1
+
+````
+
 
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 
