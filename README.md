@@ -1,6 +1,6 @@
 # TrustPositif To RPZ Binary
- TrustPositif To RPZ Binary adalah file binary merubah file list domain trustpositif dari kominfo menjadi format dns rpz.
- Hanya digunakan pada dns bind9 pada distro linux debian atau ubuntu, belum dicoba di unbound atau distro linux lainnya.
+ TrustPositif To RPZ Binary adalah file binary merubah file list domain trustpositif dari kominfo menjadi format dns rpz. Support WhiteList Dan Google SafeSearch (Update!)
+ Hanya digunakan pada dns bind9 pada distro linux debian atau ubuntu, belum dicoba di unbound atau distro linux lainnya. Spesifikasi Minimum CPU 2 Core Memory RAM 4GB, Lebih bagus 4 Core & RAM 8-16GB 
 
 
 [![Latest Version](https://img.shields.io/github/v/release/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/releases)
@@ -20,6 +20,8 @@
 
 sudo apt update; sudo apt install bind9 dnsutils
 
+sudo systemctl enable --now named
+
 sudo wget -cq https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind/named.conf.local -O /etc/bind/named.conf.local
 
 sudo wget -cq https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind/named.conf.options -O /etc/bind/named.conf.options
@@ -32,7 +34,8 @@ sudo wget -cq https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/
 
 sudo rpz
 
-<img width="736" alt="image" src="https://github.com/user-attachments/assets/43781839-88b9-43a0-ac80-3473a624305a" />
+<img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
+
 
 
 
