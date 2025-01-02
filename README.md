@@ -14,6 +14,8 @@
 [![GitHub Forks](https://img.shields.io/github/forks/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/network/members)
 [![GitHub Contributors](https://img.shields.io/github/contributors/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/graphs/contributors)
 
+
+
 ## Debian / Ubuntu , Install ISC Bind9 
 
 ````
@@ -39,6 +41,9 @@ sudo chmod +x /usr/local/bin/rpz
 sudo rpz
 
 ````
+
+
+
 
 ## Setup Crontab Auto Update Database Setiap 12 Jam
 
