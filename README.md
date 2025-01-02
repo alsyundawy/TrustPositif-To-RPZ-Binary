@@ -15,7 +15,7 @@
 [![GitHub Contributors](https://img.shields.io/github/contributors/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/graphs/contributors)
 
 \
-\
+
 ## Debian / Ubuntu , Install ISC Bind9 
 
 ````
@@ -42,7 +42,7 @@ sudo rpz
 
 ````
 
-\
+
 \
 
 ## Setup Crontab Auto Update Database Setiap 12 Jam
@@ -54,12 +54,12 @@ crontab -e
 * */12 * * * /usr/local/bin/rpz > /dev/null 2>&1
 
 ````
-\
+
 \
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 
 
-\
+
 \
 **Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui https://www.paypal.me/alsyundawy. Terima kasih atas dukungannya!**
 
