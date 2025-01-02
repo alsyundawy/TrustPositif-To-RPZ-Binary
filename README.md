@@ -56,14 +56,6 @@ sudo rpz
 
 ````
 
-## Script untuk Auto Install & Konfig
-
-````
-
-curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
-
-````
-
 
 ## Setup Crontab Auto Update Database Setiap 12 Jam
 
@@ -72,6 +64,14 @@ curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binar
 crontab -e
 
 * */12 * * * /usr/local/bin/rpz > /dev/null 2>&1
+
+````
+
+## Script untuk Auto Install & Konfig
+
+````
+
+curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 
 ````
 
