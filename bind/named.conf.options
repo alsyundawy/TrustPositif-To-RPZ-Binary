@@ -2,14 +2,19 @@ acl localnet {
     10.0.0.0/8;
     172.16.0.0/12;
     192.168.0.0/16;    
-    localhost; 
-    127.0.0.1;
+    127.0.0.0/8;
+	::1/128;
+	localhost;
 };
 
 options {
 	directory "/var/cache/bind";
 	listen-on port 53 { any; };
 	listen-on-v6 port 53 { any; };
+	
+	// Example
+	// listen-on port 53 { 127.0.0.1; 192.168.88.53; };
+	// listen-on-v6 port 53 { ::1; 2001:6f83:88::53 };
 
 	max-cache-size 	1G;      // maximum cache size of 10MB
 	max-cache-ttl 3600;        // limit cached record to a 60s TTL
@@ -44,6 +49,8 @@ options {
 	forwarders {
 		//8.8.8.8;
 		//1.1.1.2;
+		//9.9.9.9;
+		//4.2.2.2;
 	};
 
     // Disable query log (for performance)
