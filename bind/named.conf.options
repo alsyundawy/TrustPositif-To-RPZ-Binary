@@ -17,7 +17,7 @@ options {
 	
 	// Example
 	// listen-on port 53 { 127.0.0.1; 192.168.88.53; };
-	// listen-on-v6 port 53 { ::1; 2001:6f83:88::53 };
+	// listen-on-v6 port 53 { ::1; 2001:6f83:88::53; };
 
 	max-cache-size 	1G;      // maximum cache size of 10MB
 	max-cache-ttl 3600;        // limit cached record to a 60s TTL
