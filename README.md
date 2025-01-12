@@ -50,8 +50,7 @@ sudo chmod +x /usr/local/bin/rpz
 
 # Periksa konfigurasi dan Menjalankan ulang layanan BIND9
 sudo named-checkconfig
-sudo rndc reload
-sudo systemctl restart named
+sudo systemctl restart named;sudo rndc reload
 
 
 (crontab -l 2>/dev/null; echo "* */12 * * * /usr/local/bin/rpz > /dev/null 2>&1") | sudo crontab -
