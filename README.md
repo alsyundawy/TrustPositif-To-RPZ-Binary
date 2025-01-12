@@ -29,7 +29,7 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 # Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta 
 # mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.
 # Dibuat oleh: Alsyundawy
-# Tanggal: 3 Januari 2025
+# Tanggal: 13 Januari 2025
 
 # Memperbarui repositori dan menginstal paket yang diperlukan
 sudo apt update
@@ -47,6 +47,12 @@ sudo wget -cq https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-B
 # Mengunduh binary RPZ dan membuatnya dapat dieksekusi
 sudo wget -cq https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz -O /usr/local/bin/rpz
 sudo chmod +x /usr/local/bin/rpz
+
+# Periksa konfigurasi dan Menjalankan ulang layanan BIND9
+sudo named-checkconfig
+sudo rndc reload
+sudo systemctl restart named
+
 
 (crontab -l 2>/dev/null; echo "* */12 * * * /usr/local/bin/rpz > /dev/null 2>&1") | sudo crontab -
 
