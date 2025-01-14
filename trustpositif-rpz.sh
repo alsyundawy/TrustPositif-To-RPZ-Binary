@@ -3,7 +3,7 @@
 # ============================================
 # Script: trustpositif-rpz.sh
 # Fungsi: 
-#   - Mengunduh daftar domain dari URL "https://trustpositif.kominfo.go.id/assets/db/domains_isp"
+#   - Mengunduh daftar domain dari URL "https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
 #   - Mengonversi daftar domain tersebut menjadi format RPZ untuk digunakan dengan BIND DNS
 #   - Menghasilkan file zona DNS dengan konfigurasi SOA dan NS, serta menambahkan CNAME untuk setiap domain
 #   - Menggunakan curl untuk mengunduh file dengan melewati verifikasi SSL
@@ -11,7 +11,7 @@
 #   - Melakukan restart layanan named dan reload konfigurasi DNS setelah file selesai dibuat
 #
 # Pembuat: Harry DS Alsyundawy
-# Tanggal Pembuatan: 13 Januari 2025
+# Tanggal Pembuatan: 14 Januari 2025
 # ============================================
 
 # Warna ANSI
@@ -27,7 +27,7 @@ RESET='\033[0m'
 echo -e "${BLUE}# ============================================"
 echo -e "# Script: ${CYAN}trustpositif-rpz.sh${RESET}"
 echo -e "# Fungsi:"
-echo -e "#   - ${GREEN}Mengunduh daftar domain dari URL \"https://trustpositif.kominfo.go.id/assets/db/domains_isp\"${RESET}"
+echo -e "#   - ${GREEN}Mengunduh daftar domain dari URL \"https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt\"${RESET}"
 echo -e "#   - ${GREEN}Mengonversi daftar domain tersebut menjadi format RPZ untuk digunakan dengan BIND DNS${RESET}"
 echo -e "#   - ${GREEN}Menghasilkan file zona DNS dengan konfigurasi SOA dan NS, serta menambahkan CNAME untuk setiap domain${RESET}"
 echo -e "#   - ${GREEN}Menggunakan curl untuk mengunduh file dengan melewati verifikasi SSL${RESET}"
@@ -35,12 +35,12 @@ echo -e "#   - ${GREEN}Menghasilkan serial SOA secara acak dan menulisnya ke dal
 echo -e "#   - ${GREEN}Melakukan restart layanan named dan reload konfigurasi DNS setelah file selesai dibuat${RESET}"
 echo -e "#"
 echo -e "# Pembuat: ${MAGENTA}HARRY DS ALSYUNDAWY${RESET}"
-echo -e "# Tanggal Pembuatan: ${YELLOW}13 Januari 2025${RESET}"
+echo -e "# Tanggal Pembuatan: ${YELLOW}14 Januari 2025${RESET}"
 echo -e "# ============================================${RESET}"
 
 # Nama file input
-INPUT_FILE_URL="https://trustpositif.kominfo.go.id/assets/db/domains_isp"
-OUTPUT_FILE="/etc/bind/zones/trustpositif-rpz.zones"
+INPUT_FILE_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
+OUTPUT_FILE="/etc/bind/zones/trustpositif.zones"
 TEMP_INPUT_FILE="/tmp/domains_isp.txt"
 
 # Fungsi untuk menghasilkan serial SOA random
