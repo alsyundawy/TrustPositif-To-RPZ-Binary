@@ -83,9 +83,9 @@ crontab -e
 curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 
 ````
-
+-
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
-
+-
 
 # Konsep Dasar DNS Master Dan Slave
 
