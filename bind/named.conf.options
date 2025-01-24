@@ -16,7 +16,7 @@ options {
 	listen-on-v6 port 53 { any; }; // Any IPv6 On Port 53
 	
 	// Example
-	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dann Publik IPv4
+	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dan Publik IPv4
 	// listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; }; Publik Publik IPv6
 
 	max-cache-size 	1G;      // maximum cache size of 10MB
