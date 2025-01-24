@@ -120,7 +120,7 @@ options {
 
 ````
 
--
+
 # Konsep Dasar DNS Master Dan Slave
 
 ![image](https://github.com/user-attachments/assets/3dc63900-13c3-4bf3-a1bc-0cf97cb39d88)
