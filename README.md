@@ -21,6 +21,7 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 
 **Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Di Gunakan Oleh Internet Service Provider (ISP) Di Indonesia**
 
+
 ## Debian / Ubuntu , Install ISC Bind9 
 
 ````
@@ -86,6 +87,7 @@ curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binar
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 -
 
+
 # Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
 
 ````
@@ -119,6 +121,7 @@ options {
 	allow-query-cache-on	{	localnet; };
 
 ````
+
 
 
 # Konsep Dasar DNS Master Dan Slave
