@@ -7,6 +7,13 @@
 # Dibuat oleh: Alsyundawy
 # Tanggal: 24 Januari 2025
 
+#!/usr/bin/env bash
+
+# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server
+# dengan konfigurasi RPZ (Response Policy Zone).
+# Dibuat oleh: Alsyundawy
+# Tanggal: 13 Januari 2025
+
 # Warna untuk teks
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -82,6 +89,13 @@ echo -e "${CYAN}# dengan konfigurasi RPZ (Response Policy Zone).${NC}"
 echo -e "${YELLOW}# Dibuat oleh: Alsyundawy${NC}"
 echo -e "${YELLOW}# Tanggal: 13 Januari 2025${NC}"
 
+# Memperbaiki masalah hostname
+echo -e "${BLUE}Memperbaiki masalah hostname...${NC}"
+if ! grep -q "$(hostname)" /etc/hosts; then
+    echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts > /dev/null
+    check_status "Gagal memperbaiki konfigurasi /etc/hosts."
+fi
+
 # Memperbarui repositori dan menginstal paket yang diperlukan
 echo -e "${BLUE}Memperbarui repositori dan menginstal paket yang diperlukan...${NC}"
 sudo apt-get update;sudo apt-get upgrade -y;sudo apt-get dist-upgrade -y;sudo apt-get full-upgrade -y; sudo apt-get --purge autoremove -y
@@ -105,12 +119,21 @@ for file in "${CONFIG_FILES[@]}"; do
     set_permissions "$destination" "root:bind" "644"
 done
 
-# Memeriksa konfigurasi dan menjalankan ulang layanan BIND9
-echo -e "${GREEN}Memeriksa konfigurasi dan menjalankan ulang layanan BIND9...${NC}"
+# Memeriksa konfigurasi BIND9
+echo -e "${GREEN}Memeriksa konfigurasi BIND9...${NC}"
 sudo named-checkconf
 check_status "Konfigurasi BIND tidak valid."
-sudo rndc reload
-check_status "Gagal memuat ulang konfigurasi BIND."
+
+# Memeriksa port 53
+echo -e "${BLUE}Memeriksa port 53...${NC}"
+if sudo netstat -tuln | grep -q ':53 '; then
+    echo -e "${YELLOW}Port 53 sudah digunakan. Menghentikan layanan yang menggunakan port 53...${NC}"
+    sudo fuser -k 53/udp 53/tcp
+    check_status "Gagal mengosongkan port 53."
+fi
+
+# Menjalankan ulang layanan BIND9
+echo -e "${GREEN}Menjalankan ulang layanan BIND9...${NC}"
 sudo systemctl restart named
 check_status "Gagal menjalankan ulang layanan BIND9."
 
