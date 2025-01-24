@@ -92,34 +92,43 @@ curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binar
 
 ````
 
+// Definisi ACL (Access Control List) untuk jaringan yang diizinkan
 acl localnet {
-	// Example
-	// 202.88.254.0/22; // Publik IPv4
-	// 2001:6f83::/32; // Publik IPv6
-  10.0.0.0/8;  // Private IPv4
-  172.16.0.0/12;  // Private IPv4
-  192.168.0.0/16;  // Private IPv4    
-  127.0.0.0/8;
-	::1/128;
-	localhost;
+    // Jaringan private IPv4 (RFC 1918)
+    10.0.0.0/8;      // Blok IP privat kelas A
+    172.16.0.0/12;   // Blok IP privat kelas B
+    192.168.0.0/16;  // Blok IP privat kelas C
+
+    // Loopback (localhost)
+    127.0.0.0/8;     // Loopback IPv4
+    ::1/128;         // Loopback IPv6
+    localhost;       // Alias untuk loopback
+
+    // Contoh alamat IPv4 dan IPv6 publik (dikomentari)
+    // 202.88.254.0/22; // Contoh blok IPv4 publik
+    // 2001:6f83::/32;  // Contoh blok IPv6 publik
 };
 
+// Pengaturan global untuk server BIND
 options {
-	directory "/var/cache/bind";
-	listen-on port 53 { any; }; // Any IPv4 On Port 53
-	listen-on-v6 port 53 { any; }; // Any IPv6 On Port 53
-	
-	// Example
-	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dan Publik IPv4
-	// listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; }; Publik Publik IPv6
+    // Direktori untuk menyimpan file cache dan zona
+    directory "/var/cache/bind";
 
-	allow-query		{ localnet; };
-	allow-query-on	{ localnet; };
-	allow-recursion			{	localnet; };
-	allow-recursion-on		{	localnet; };
-	allow-query-cache		{	localnet; };
-	allow-query-cache-on	{	localnet; };
+    // Mendengarkan permintaan DNS pada port 53 untuk semua IPv4 dan IPv6
+    listen-on port 53 { any; };       // Mendengarkan pada port 53 untuk semua IPv4
+    listen-on-v6 port 53 { any; };    // Mendengarkan pada port 53 untuk semua IPv6
 
+    // Contoh mendengarkan pada alamat IPv4 dan IPv6 tertentu (dikomentari)
+    // listen-on port 53 { 127.0.0.1; 192.168.254.254; 202.88.254.254; }; // IPv4 (loopback, privat, dan publik)
+    // listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; };    // IPv6 (loopback dan publik)
+
+    // Membatasi akses query dan rekursi hanya untuk jaringan yang didefinisikan di `localnet`
+    allow-query { localnet; };        // Hanya izinkan query dari `localnet`
+    allow-query-on { localnet; };     // Hanya izinkan query pada antarmuka jaringan `localnet`
+    allow-recursion { localnet; };    // Hanya izinkan rekursi untuk `localnet`
+    allow-recursion-on { localnet; }; // Hanya izinkan rekursi pada antarmuka jaringan `localnet`
+    allow-query-cache { localnet; };  // Hanya izinkan query cache untuk `localnet`
+    allow-query-cache-on { localnet; }; // Hanya izinkan query cache pada antarmuka jaringan `localnet`
 ````
 
 
