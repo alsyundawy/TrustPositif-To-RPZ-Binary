@@ -86,7 +86,7 @@ curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binar
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 -
 
-# Access Control Lists. Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
+# Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
 
 ````
 
