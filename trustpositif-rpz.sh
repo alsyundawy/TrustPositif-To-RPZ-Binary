@@ -35,7 +35,7 @@ echo -e "#   - ${GREEN}Menghasilkan serial SOA secara acak dan menulisnya ke dal
 echo -e "#   - ${GREEN}Melakukan restart layanan named dan reload konfigurasi DNS setelah file selesai dibuat${RESET}"
 echo -e "#"
 echo -e "# Pembuat: ${MAGENTA}HARRY DS ALSYUNDAWY${RESET}"
-echo -e "# Tanggal Pembuatan: ${YELLOW}14 Januari 2025${RESET}"
+echo -e "# Tanggal Pembuatan: ${YELLOW}24 Januari 2025${RESET}"
 echo -e "# ============================================${RESET}"
 
 # Nama file input
@@ -83,8 +83,8 @@ echo -e "${CYAN}Menulis konfigurasi zona ke file output:${RESET} ${YELLOW}$OUTPU
 # Menggunakan awk untuk membaca file input dan menulis ke file output
 awk '
 {
-    print $0 " CNAME lamanlabuh.resolver.id."
-    print "*." $0 " CNAME lamanlabuh.resolver.id."
+    print $0 "  3600 IN CNAME lamanlabuh.resolver.id."
+    print "*." $0 "  3600 IN CNAME lamanlabuh.resolver.id."
 }' "$TEMP_INPUT_FILE" >> "$OUTPUT_FILE"
 
 # Menghapus file sementara
