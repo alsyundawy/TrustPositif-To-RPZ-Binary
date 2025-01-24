@@ -34,11 +34,12 @@ echo -e "${CYAN}# yang digunakan untuk mengelola DNS dengan konfigurasi RPZ (Res
 echo -e "${CYAN}# Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta ${NC}"
 echo -e "${CYAN}# mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.${NC}"
 echo -e "${YELLOW}# Dibuat oleh: Alsyundawy${NC}"
-echo -e "${YELLOW}# Tanggal: 13 Januari 2025${NC}"
+echo -e "${YELLOW}# Tanggal: 24 Januari 2025${NC}"
 
 # Memperbarui repositori dan menginstal paket yang diperlukan
 echo -e "${BLUE}Memperbarui repositori dan menginstal paket yang diperlukan...${NC}"
-sudo apt update
+sudo apt-get update;sudo apt-get upgrade -y;sudo apt-get dist-upgrade -y;sudo apt-get full-upgrade -y; sudo apt-get --purge autoremove -y
+
 check_status "Gagal memperbarui repositori."
 sudo apt install -y bind9 dnsutils
 check_status "Gagal menginstal paket yang diperlukan."
