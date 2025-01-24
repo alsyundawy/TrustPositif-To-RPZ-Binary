@@ -43,10 +43,11 @@ INPUT_FILE_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ
 OUTPUT_FILE="/etc/bind/zones/trustpositif.zones"
 TEMP_INPUT_FILE="/tmp/domains_isp.txt"
 
-# Fungsi untuk menghasilkan serial SOA random
+# Fungsi untuk menghasilkan serial SOA
 generate_serial_soa() {
-    date +%Y%m%d$(( RANDOM % 99 + 1 ))
+    date +%y%m%d%H%M
 }
+
 
 # Mengunduh file input dengan curl dan bypass SSL
 echo -e "${CYAN}Mengunduh file dari URL:${RESET} ${YELLOW}$INPUT_FILE_URL${RESET}"
