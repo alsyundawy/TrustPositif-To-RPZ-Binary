@@ -83,10 +83,44 @@ crontab -e
 curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 
 ````
--
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 -
 
+# Access Control Lists. Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
+
+````
+
+acl localnet {
+	// Example
+	// 202.88.254.0/22; // Publik IPv4
+	// 2001:6f83::/32; // Publik IPv6
+  10.0.0.0/8;  // Private IPv4
+  172.16.0.0/12;  // Private IPv4
+  192.168.0.0/16;  // Private IPv4    
+  127.0.0.0/8;
+	::1/128;
+	localhost;
+};
+
+options {
+	directory "/var/cache/bind";
+	listen-on port 53 { any; }; // Any IPv4 On Port 53
+	listen-on-v6 port 53 { any; }; // Any IPv6 On Port 53
+	
+	// Example
+	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dann Publik IPv4
+	// listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; }; Publik Publik IPv6
+
+	allow-query		{ localnet; };
+	allow-query-on	{ localnet; };
+	allow-recursion			{	localnet; };
+	allow-recursion-on		{	localnet; };
+	allow-query-cache		{	localnet; };
+	allow-query-cache-on	{	localnet; };
+
+````
+
+-
 # Konsep Dasar DNS Master Dan Slave
 
 ![image](https://github.com/user-attachments/assets/3dc63900-13c3-4bf3-a1bc-0cf97cb39d88)
