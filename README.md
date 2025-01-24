@@ -131,6 +131,40 @@ options {
     allow-query-cache-on { localnet; }; // Hanya izinkan query cache pada antarmuka jaringan `localnet`
 ````
 
+# Troubleshooting DNS Dengan Perindah Dasar NSLOOKUP (Support Semua Operations System)
+
+````
+
+#Basic Perintah dasar NSLOOKUP Domain dan IP
+
+nslookup domain/ip ipmesindns
+
+nslookup domain.tld
+nslookup domain.tld 127.0.0.1
+nslookup domain.tld 192.168.254.254
+
+nslookup 192.168.254.254
+nslookup 192.168.254.254 127.0.0.1
+nslookup 192.168.254.254 192.168.254.254
+
+#Perintah NSLOOKUP Dengan Menanyakan Query Ke DNS PUBLIK
+nslookup domain.tld 8.8.8.8
+nslookup domain.tld 1.1.1.1
+nslookup domain.tld 9.9.9.9
+
+#Contoh Beberapa Perintah NSLOOKUP
+nslookup -query=any example.com
+nslookup -query=ns example.com
+nslookup -query=a example.com
+nslookup -query=aaaa example.com
+nslookup -query=mx example.com
+nslookup -query=soa example.com
+
+
+#Perintah NSLOOKUP apabila DNS Server Menggunakan Port Lain Misal Port 5353
+nslookup -port=5353 example.com
+
+````
 
 
 # Konsep Dasar DNS Master Dan Slave
