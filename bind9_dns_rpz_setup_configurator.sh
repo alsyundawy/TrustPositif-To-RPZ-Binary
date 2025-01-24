@@ -7,13 +7,6 @@
 # Dibuat oleh: Alsyundawy
 # Tanggal: 24 Januari 2025
 
-#!/usr/bin/env bash
-
-# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server
-# dengan konfigurasi RPZ (Response Policy Zone).
-# Dibuat oleh: Alsyundawy
-# Tanggal: 13 Januari 2025
-
 # Warna untuk teks
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -96,15 +89,21 @@ if ! grep -q "$(hostname)" /etc/hosts; then
     check_status "Gagal memperbaiki konfigurasi /etc/hosts."
 fi
 
-# Memperbarui repositori dan menginstal paket yang diperlukan
-echo -e "${BLUE}Memperbarui repositori dan menginstal paket yang diperlukan...${NC}"
-sudo apt-get update;sudo apt-get upgrade -y;sudo apt-get dist-upgrade -y;sudo apt-get full-upgrade -y; sudo apt-get --purge autoremove -y
+# Memperbarui sistem secara komprehensif
+echo -e "${BLUE}Memperbarui sistem...${NC}"
+sudo apt-get update
 check_status "Gagal memperbarui repositori."
-sudo apt install -y bind9 dnsutils
-check_status "Gagal menginstal paket yang diperlukan."
+sudo apt-get upgrade -y
+check_status "Gagal melakukan upgrade paket."
+sudo apt-get dist-upgrade -y
+check_status "Gagal melakukan dist-upgrade."
+sudo apt-get full-upgrade -y
+check_status "Gagal melakukan full-upgrade."
+sudo apt-get --purge autoremove -y
+check_status "Gagal membersihkan paket yang tidak terpakai."
 
-# Membuat direktori /etc/bind/zones jika belum ada
-echo -e "${BLUE}Membuat direktori $ZONES_DIR...${NC}"
+# Memastikan folder /etc/bind/zones ada
+echo -e "${BLUE}Memastikan folder $ZONES_DIR ada...${NC}"
 sudo mkdir -p "$ZONES_DIR"
 check_status "Gagal membuat direktori $ZONES_DIR."
 set_permissions "$ZONES_DIR" "root:bind" "755"
