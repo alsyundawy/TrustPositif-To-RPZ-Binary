@@ -5,7 +5,7 @@
 # Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta 
 # mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.
 # Dibuat oleh: Alsyundawy
-# Tanggal: 13 Januari 2025
+# Tanggal: 24 Januari 2025
 
 # Warna untuk teks
 GREEN='\033[0;32m'
@@ -14,6 +14,19 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Konfigurasi
+BIND_DIR="/etc/bind"
+ZONES_DIR="${BIND_DIR}/zones"
+RPZ_BINARY="/usr/local/bin/rpz"
+CONFIG_FILES=(
+    "named.conf.local"
+    "named.conf.options"
+    "zones/safesearch.zones"
+    "zones/whitelist.zones"
+)
+REPO_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind"
+RPZ_URL="https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz"
 
 # Fungsi untuk menampilkan pesan error dan keluar
 error_exit() {
@@ -28,44 +41,71 @@ check_status() {
     fi
 }
 
-# Menampilkan informasi dengan warna
+# Fungsi untuk memeriksa apakah URL valid
+check_url() {
+    if ! curl --head --silent --fail "$1" > /dev/null; then
+        error_exit "URL tidak valid: $1"
+    fi
+}
+
+# Fungsi untuk mengunduh file
+download_file() {
+    local url="$1"
+    local destination="$2"
+    echo -e "${BLUE}Mengunduh file dari $url ke $destination...${NC}"
+    sudo wget -cq "$url" -O "$destination"
+    check_status "Gagal mengunduh file dari $url."
+}
+
+# Fungsi untuk mengatur kepemilikan dan izin
+set_permissions() {
+    local target="$1"
+    local owner="$2"
+    local permissions="$3"
+    echo -e "${BLUE}Mengatur kepemilikan dan izin untuk $target...${NC}"
+    sudo chown "$owner" "$target"
+    check_status "Gagal mengatur kepemilikan untuk $target."
+    sudo chmod "$permissions" "$target"
+    check_status "Gagal mengatur izin untuk $target."
+}
+
+# Memeriksa apakah script dijalankan sebagai root
+if [ "$EUID" -ne 0 ]; then
+    echo -e "${YELLOW}Script ini memerlukan hak akses root. Meminta elevasi...${NC}"
+    exec sudo bash "$0" "$@"
+    exit
+fi
+
+# Menampilkan informasi script
 echo -e "${CYAN}# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server${NC}"
-echo -e "${CYAN}# yang digunakan untuk mengelola DNS dengan konfigurasi RPZ (Response Policy Zone).${NC}"
-echo -e "${CYAN}# Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta ${NC}"
-echo -e "${CYAN}# mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.${NC}"
+echo -e "${CYAN}# dengan konfigurasi RPZ (Response Policy Zone).${NC}"
 echo -e "${YELLOW}# Dibuat oleh: Alsyundawy${NC}"
-echo -e "${YELLOW}# Tanggal: 24 Januari 2025${NC}"
+echo -e "${YELLOW}# Tanggal: 13 Januari 2025${NC}"
 
 # Memperbarui repositori dan menginstal paket yang diperlukan
 echo -e "${BLUE}Memperbarui repositori dan menginstal paket yang diperlukan...${NC}"
 sudo apt-get update;sudo apt-get upgrade -y;sudo apt-get dist-upgrade -y;sudo apt-get full-upgrade -y; sudo apt-get --purge autoremove -y
-
 check_status "Gagal memperbarui repositori."
 sudo apt install -y bind9 dnsutils
 check_status "Gagal menginstal paket yang diperlukan."
 
-# Mengaktifkan dan memulai layanan BIND9
-echo -e "${BLUE}Mengaktifkan dan memulai layanan BIND9...${NC}"
-sudo systemctl enable --now named
-check_status "Gagal mengaktifkan atau memulai layanan BIND9."
+# Membuat direktori /etc/bind/zones jika belum ada
+echo -e "${BLUE}Membuat direktori $ZONES_DIR...${NC}"
+sudo mkdir -p "$ZONES_DIR"
+check_status "Gagal membuat direktori $ZONES_DIR."
+set_permissions "$ZONES_DIR" "root:bind" "755"
 
 # Mengunduh dan mengonfigurasi file konfigurasi BIND
 echo -e "${YELLOW}Mengunduh dan mengonfigurasi file konfigurasi BIND...${NC}"
-declare -A config_files=(
-    ["named.conf.local"]="/etc/bind/named.conf.local"
-    ["named.conf.options"]="/etc/bind/named.conf.options"
-    ["safesearch.zones"]="/etc/bind/zones/safesearch.zones"
-    ["whitelist.zones"]="/etc/bind/zones/whitelist.zones"
-)
-
-for file in "${!config_files[@]}"; do
-    url="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind/${file}"
-    destination="${config_files[$file]}"
-    sudo wget -cq "$url" -O "$destination"
-    check_status "Gagal mengunduh atau menyimpan file ${file}."
+for file in "${CONFIG_FILES[@]}"; do
+    destination="${BIND_DIR}/${file}"
+    url="${REPO_URL}/${file}"
+    check_url "$url"
+    download_file "$url" "$destination"
+    set_permissions "$destination" "root:bind" "644"
 done
 
-# Periksa konfigurasi dan menjalankan ulang layanan BIND9
+# Memeriksa konfigurasi dan menjalankan ulang layanan BIND9
 echo -e "${GREEN}Memeriksa konfigurasi dan menjalankan ulang layanan BIND9...${NC}"
 sudo named-checkconf
 check_status "Konfigurasi BIND tidak valid."
@@ -76,21 +116,18 @@ check_status "Gagal menjalankan ulang layanan BIND9."
 
 # Mengunduh binary RPZ dan membuatnya dapat dieksekusi
 echo -e "${YELLOW}Mengunduh binary RPZ dan membuatnya dapat dieksekusi...${NC}"
-rpz_url="https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz"
-rpz_destination="/usr/local/bin/rpz"
-sudo wget -cq "$rpz_url" -O "$rpz_destination"
-check_status "Gagal mengunduh atau menyimpan binary RPZ."
-sudo chmod +x "$rpz_destination"
-check_status "Gagal membuat binary RPZ dapat dieksekusi."
+check_url "$RPZ_URL"
+download_file "$RPZ_URL" "$RPZ_BINARY"
+set_permissions "$RPZ_BINARY" "root:root" "755"
 
 # Menambahkan cron job untuk menjalankan RPZ setiap 12 jam
 echo -e "${GREEN}Menambahkan cron job untuk menjalankan RPZ setiap 12 jam...${NC}"
-(crontab -l 2>/dev/null; echo "0 */12 * * * /usr/local/bin/rpz > /dev/null 2>&1") | sudo crontab -
+(crontab -l 2>/dev/null; echo "0 */12 * * * $RPZ_BINARY > /dev/null 2>&1") | sudo crontab -
 check_status "Gagal menambahkan cron job."
 
 # Menjalankan RPZ binary
 echo -e "${RED}Menjalankan RPZ binary...${NC}"
-sudo "$rpz_destination"
+sudo "$RPZ_BINARY"
 check_status "Gagal menjalankan binary RPZ."
 
 echo -e "${GREEN}Script selesai dijalankan.${NC}"
