@@ -1,23 +1,23 @@
 acl localnet {
 	// Example
-	// 202.88.254.0/22; // publik ipv4
-	// 2001:6f83::/32; // publik ipv6
-    10.0.0.0/8;
-    172.16.0.0/12;
-    192.168.0.0/16;    
-    127.0.0.0/8;
+	// 202.88.254.0/22; // Publik IPv4
+	// 2001:6f83::/32; // Publik IPv6
+  	10.0.0.0/8;  // Private IPv4
+  	172.16.0.0/12;  // Private IPv4
+  	192.168.0.0/16;  // Private IPv4    
+  	127.0.0.0/8;
 	::1/128;
 	localhost;
 };
 
 options {
 	directory "/var/cache/bind";
-	listen-on port 53 { any; };
-	listen-on-v6 port 53 { any; };
+	listen-on port 53 { any; }; // Any IPv4 On Port 53
+	listen-on-v6 port 53 { any; }; // Any IPv6 On Port 53
 	
 	// Example
-	// listen-on port 53 { 127.0.0.1; 192.168.88.53; };
-	// listen-on-v6 port 53 { ::1; 2001:6f83:88::53; };
+	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dann Publik IPv4
+	// listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; }; Publik Publik IPv6
 
 	max-cache-size 	1G;      // maximum cache size of 10MB
 	max-cache-ttl 3600;        // limit cached record to a 60s TTL
