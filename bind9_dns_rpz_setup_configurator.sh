@@ -7,12 +7,12 @@
 # Dibuat oleh: Alsyundawy
 # Tanggal: 24 Januari 2025
 
-# Warna untuk teks
-GREEN='\033[0;32m'
+
+# Warna untuk teks (4 warna terang)
+CYAN='\033[1;36m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
+GREEN='\033[1;32m'
+MAGENTA='\033[1;35m'
 NC='\033[0m' # No Color
 
 # Konfigurasi
@@ -30,7 +30,7 @@ RPZ_URL="https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads
 
 # Fungsi untuk menampilkan pesan error dan keluar
 error_exit() {
-    echo -e "${RED}[ERROR] $1${NC}" >&2
+    echo -e "${MAGENTA}[ERROR] $1${NC}" >&2
     exit 1
 }
 
@@ -52,8 +52,8 @@ check_url() {
 download_file() {
     local url="$1"
     local destination="$2"
-    echo -e "${BLUE}Mengunduh file dari $url ke $destination...${NC}"
-    sudo wget -cq "$url" -O "$destination"
+    echo -e "${CYAN}Mengunduh file dari $url ke $destination...${NC}"
+    wget -cq "$url" -O "$destination"
     check_status "Gagal mengunduh file dari $url."
 }
 
@@ -62,10 +62,10 @@ set_permissions() {
     local target="$1"
     local owner="$2"
     local permissions="$3"
-    echo -e "${BLUE}Mengatur kepemilikan dan izin untuk $target...${NC}"
-    sudo chown "$owner" "$target"
+    echo -e "${CYAN}Mengatur kepemilikan dan izin untuk $target...${NC}"
+    chown "$owner" "$target"
     check_status "Gagal mengatur kepemilikan untuk $target."
-    sudo chmod "$permissions" "$target"
+    chmod "$permissions" "$target"
     check_status "Gagal mengatur izin untuk $target."
 }
 
@@ -83,28 +83,44 @@ echo -e "${YELLOW}# Dibuat oleh: Alsyundawy${NC}"
 echo -e "${YELLOW}# Tanggal: 13 Januari 2025${NC}"
 
 # Memperbaiki masalah hostname
-echo -e "${BLUE}Memperbaiki masalah hostname...${NC}"
+echo -e "${CYAN}Memperbaiki masalah hostname...${NC}"
 if ! grep -q "$(hostname)" /etc/hosts; then
-    echo "127.0.0.1 $(hostname)" | sudo tee -a /etc/hosts > /dev/null
+    echo "127.0.0.1 $(hostname)" | tee -a /etc/hosts > /dev/null
     check_status "Gagal memperbaiki konfigurasi /etc/hosts."
 fi
 
 # Memperbarui sistem secara komprehensif
-echo -e "${BLUE}Memperbarui sistem...${NC}"
-sudo apt-get update
+echo -e "${CYAN}Memperbarui sistem...${NC}"
+apt-get update
 check_status "Gagal memperbarui repositori."
-sudo apt-get upgrade -y
+apt-get upgrade -y
 check_status "Gagal melakukan upgrade paket."
-sudo apt-get dist-upgrade -y
+apt-get dist-upgrade -y
 check_status "Gagal melakukan dist-upgrade."
-sudo apt-get full-upgrade -y
+apt-get full-upgrade -y
 check_status "Gagal melakukan full-upgrade."
-sudo apt-get --purge autoremove -y
+apt-get --purge autoremove -y
 check_status "Gagal membersihkan paket yang tidak terpakai."
 
+# Membersihkan cache paket yang rusak
+echo -e "${CYAN}Membersihkan cache paket yang rusak...${NC}"
+apt-get clean
+apt-get autoclean
+apt-get autoremove -y
+
+# Memperbaiki dependency yang rusak
+echo -e "${CYAN}Memperbaiki dependency yang rusak...${NC}"
+apt-get install -f -y
+check_status "Gagal memperbaiki dependency."
+
+# Menginstal paket bind9 dan dnsutils
+echo -e "${CYAN}Menginstal paket bind9 dan dnsutils...${NC}"
+apt-get install -y bind9 dnsutils
+check_status "Gagal menginstal paket yang diperlukan."
+
 # Memastikan folder /etc/bind/zones ada
-echo -e "${BLUE}Memastikan folder $ZONES_DIR ada...${NC}"
-sudo mkdir -p "$ZONES_DIR"
+echo -e "${CYAN}Memastikan folder $ZONES_DIR ada...${NC}"
+mkdir -p "$ZONES_DIR"
 check_status "Gagal membuat direktori $ZONES_DIR."
 set_permissions "$ZONES_DIR" "root:bind" "755"
 
@@ -120,20 +136,20 @@ done
 
 # Memeriksa konfigurasi BIND9
 echo -e "${GREEN}Memeriksa konfigurasi BIND9...${NC}"
-sudo named-checkconf
+named-checkconf
 check_status "Konfigurasi BIND tidak valid."
 
 # Memeriksa port 53
-echo -e "${BLUE}Memeriksa port 53...${NC}"
-if sudo netstat -tuln | grep -q ':53 '; then
+echo -e "${CYAN}Memeriksa port 53...${NC}"
+if netstat -tuln | grep -q ':53 '; then
     echo -e "${YELLOW}Port 53 sudah digunakan. Menghentikan layanan yang menggunakan port 53...${NC}"
-    sudo fuser -k 53/udp 53/tcp
+    fuser -k 53/udp 53/tcp
     check_status "Gagal mengosongkan port 53."
 fi
 
 # Menjalankan ulang layanan BIND9
 echo -e "${GREEN}Menjalankan ulang layanan BIND9...${NC}"
-sudo systemctl restart named
+systemctl restart named
 check_status "Gagal menjalankan ulang layanan BIND9."
 
 # Mengunduh binary RPZ dan membuatnya dapat dieksekusi
@@ -144,12 +160,12 @@ set_permissions "$RPZ_BINARY" "root:root" "755"
 
 # Menambahkan cron job untuk menjalankan RPZ setiap 12 jam
 echo -e "${GREEN}Menambahkan cron job untuk menjalankan RPZ setiap 12 jam...${NC}"
-(crontab -l 2>/dev/null; echo "0 */12 * * * $RPZ_BINARY > /dev/null 2>&1") | sudo crontab -
+(crontab -l 2>/dev/null; echo "0 */12 * * * $RPZ_BINARY > /dev/null 2>&1") | crontab -
 check_status "Gagal menambahkan cron job."
 
 # Menjalankan RPZ binary
-echo -e "${RED}Menjalankan RPZ binary...${NC}"
-sudo "$RPZ_BINARY"
+echo -e "${MAGENTA}Menjalankan RPZ binary...${NC}"
+"$RPZ_BINARY"
 check_status "Gagal menjalankan binary RPZ."
 
 echo -e "${GREEN}Script selesai dijalankan.${NC}"
