@@ -1,98 +1,102 @@
+// Definisi ACL (Access Control List) untuk jaringan yang diizinkan
 acl localnet {
-	// Example
-	// 202.88.254.0/22; // Publik IPv4
-	// 2001:6f83::/32; // Publik IPv6
-  	10.0.0.0/8;  // Private IPv4
-  	172.16.0.0/12;  // Private IPv4
-  	192.168.0.0/16;  // Private IPv4    
-  	127.0.0.0/8;
-	::1/128;
-	localhost;
+    // Jaringan private IPv4 (RFC 1918)
+    10.0.0.0/8;      // Blok IP privat kelas A
+    172.16.0.0/12;   // Blok IP privat kelas B
+    192.168.0.0/16;  // Blok IP privat kelas C
+
+    // Loopback (localhost)
+    127.0.0.0/8;     // Loopback IPv4
+    ::1/128;         // Loopback IPv6
+    localhost;       // Alias untuk loopback
+
+    // Contoh alamat IPv4 dan IPv6 publik (dikomentari)
+    // 202.88.254.0/22; // Contoh blok IPv4 publik
+    // 2001:6f83::/32;  // Contoh blok IPv6 publik
 };
 
+// Pengaturan global untuk server BIND
 options {
-	directory "/var/cache/bind";
-	listen-on port 53 { any; }; // Any IPv4 On Port 53
-	listen-on-v6 port 53 { any; }; // Any IPv6 On Port 53
-	
-	// Example
-	// listen-on port 53 { 127.0.0.1; 192,168.254:254; 202.88.254.254; }; Private dan Publik IPv4
-	// listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; }; Publik Publik IPv6
+    // Direktori untuk menyimpan file cache dan zona
+    directory "/var/cache/bind";
 
-	max-cache-size 	1G;      // maximum cache size of 10MB
-	max-cache-ttl 3600;        // limit cached record to a 60s TTL
-	max-ncache-ttl 3600;       // limit cache neg. resp. to a 60s TTL
-	
-	// ACL for recursion
+    // Mendengarkan permintaan DNS pada port 53 untuk semua IPv4 dan IPv6
+    listen-on port 53 { any; };       // IPv4
+    listen-on-v6 port 53 { any; };    // IPv6
 
-	allow-query		{ localnet; };
-	allow-query-on	{ localnet; };
-	allow-recursion			{	localnet; };
-	allow-recursion-on		{	localnet; };
-	allow-query-cache		{	localnet; };
-	allow-query-cache-on	{	localnet; };
-	
-	// Enable RPZ
-	response-policy { 
-		zone "whitelist" policy passthru;
-		zone "safesearch" policy given;
-		zone "trustpositif" policy given;
-			}
-	break-dnssec yes
-	qname-wait-recurse no
-	recursive-only yes
-	nsip-wait-recurse no
-	max-policy-ttl 60s;	
-	
+    // Contoh mendengarkan pada alamat IPv4 dan IPv6 tertentu (dikomentari)
+    // listen-on port 53 { 127.0.0.1; 192.168.254.254; 202.88.254.254; }; // IPv4 (loopback, privat, dan publik)
+    // listen-on-v6 port 53 { ::1; 2001:6f83:88:99:202:88:254:254; };    // IPv6 (loopback dan publik)
 
-    // Security settings
-    version "not currently available"; // Hide version number
+    // Pengaturan cache
+    max-cache-size 1G;       // Ukuran maksimum cache adalah 1GB
+    max-cache-ttl 3600;      // TTL (Time to Live) maksimum untuk record cache adalah 3600 detik (1 jam)
+    max-ncache-ttl 3600;     // TTL maksimum untuk respons negatif cache adalah 3600 detik (1 jam)
 
-	// Forwarders
-	forwarders {
-		//8.8.8.8;
-		//1.1.1.2;
-		//9.9.9.9;
-		//4.2.2.2;
-	};
+    // Membatasi akses query dan rekursi hanya untuk jaringan yang didefinisikan di `localnet`
+    allow-query { localnet; };        // Hanya izinkan query dari `localnet`
+    allow-query-on { localnet; };     // Hanya izinkan query pada antarmuka jaringan `localnet`
+    allow-recursion { localnet; };    // Hanya izinkan rekursi untuk `localnet`
+    allow-recursion-on { localnet; }; // Hanya izinkan rekursi pada antarmuka jaringan `localnet`
+    allow-query-cache { localnet; };  // Hanya izinkan query cache untuk `localnet`
+    allow-query-cache-on { localnet; }; // Hanya izinkan query cache pada antarmuka jaringan `localnet`
 
-    // Disable query log (for performance)
-    querylog no;
-	
-    // Enable recursion
-    recursion yes;
-	
-    // Security and performance settings
-    dnssec-validation no;
-    minimal-responses yes;
-    auth-nxdomain no;  # Conform to RFC1035
-    request-ixfr yes;
-
-    // Rate limiting
-    rate-limit {
-        responses-per-second 64;
-        all-per-second 128;
-        window 3;
-        max-table-size 4096;
-        min-table-size 1024;
-        ipv4-prefix-length 32;
-        ipv6-prefix-length 64;
-        slip 2;
-        errors-per-second 10;
-        nxdomains-per-second 80;
-        qps-scale 300;
-        log-only no;
+    // Response Policy Zones (RPZ) untuk menerapkan kebijakan pada respons DNS
+    response-policy {
+        zone "whitelist" policy passthru; // Melewati domain yang ada di whitelist
+        zone "safesearch" policy given;   // Menerapkan kebijakan SafeSearch
+        zone "trustpositif" policy given; // Menerapkan kebijakan TrustPositif
     };
 
-    // Client limits for 3000 clients
-    tcp-clients 3000;          # Match the number of expected clients
-    recursive-clients 3000;    # Slightly higher than client count
-    tcp-listen-queue 1024;     # Increase the backlog queue size
+    // Pengaturan keamanan
+    version "not currently available"; // Menyembunyikan versi BIND untuk keamanan
+    dnssec-validation no;              // Menonaktifkan validasi DNSSEC
+    minimal-responses yes;             // Mengurangi ukuran respons DNS untuk meningkatkan performa
+    auth-nxdomain no;                  // Menonaktifkan respons otoritatif untuk domain yang tidak ada
+    request-ixfr yes;                  // Mengizinkan transfer zona inkremental
+
+    // Rate limiting untuk mencegah serangan DDoS
+    rate-limit {
+        responses-per-second 64;       // Batas respons per detik
+        all-per-second 128;            // Batas total respons per detik
+        window 3;                      // Jendela waktu untuk rate limiting
+        max-table-size 4096;           // Ukuran maksimum tabel rate limiting
+        min-table-size 1024;           // Ukuran minimum tabel rate limiting
+        ipv4-prefix-length 32;         // Panjang prefiks IPv4 untuk rate limiting
+        ipv6-prefix-length 64;         // Panjang prefiks IPv6 untuk rate limiting
+        slip 2;                        // Jumlah respons yang di-slip (dilewati) saat melebihi batas
+        errors-per-second 10;          // Batas error per detik
+        nxdomains-per-second 80;       // Batas respons NXDOMAIN (domain tidak ada) per detik
+        qps-scale 300;                 // Skala QPS (Queries Per Second)
+        log-only no;                   // Tidak hanya mencatat, tetapi juga menerapkan batasan
+    };
+
+    // Batasan klien untuk meningkatkan performa dan keamanan
+    tcp-clients 3000;          // Batas klien TCP yang dapat terhubung
+    recursive-clients 3000;    // Batas klien rekursif
+    tcp-listen-queue 1024;     // Ukuran antrian TCP
+
+    // Forwarders untuk meneruskan query DNS ke server DNS lain
+    forwarders {
+        // Contoh forwarders (dikomentari karena tidak digunakan)
+        // 8.8.8.8;       // Google DNS
+        // 1.1.1.2;       // Cloudflare DNS
+        // 9.9.9.9;       // Quad9 DNS
+        // 4.2.2.2;       // Level3 DNS
+    };
+
+    // Menonaktifkan logging query untuk meningkatkan performa
+    querylog no;
+
+    // Mengizinkan rekursi DNS
+    recursion yes;
 };
 
+// Konfigurasi RNDC (Remote Name Daemon Control) untuk mengontrol server BIND secara remote
 include "/etc/bind/rndc.key";
 
 controls {
-	inet 127.0.0.1 port 953
-		allow { 127.0.0.1; } keys { "rndc-key"; };
+    inet 127.0.0.1 port 953    // Mendengarkan pada localhost, port 953
+        allow { 127.0.0.1; }   // Hanya izinkan koneksi dari localhost
+        keys { "rndc-key"; };  // Menggunakan kunci yang didefinisikan di `/etc/bind/rndc.key`
 };
