@@ -52,9 +52,16 @@ check_url() {
 download_file() {
     local url="$1"
     local destination="$2"
+    local tmp_file
+    tmp_file=$(mktemp)
+
     echo -e "${CYAN}Mengunduh file dari $url ke $destination...${NC}"
-    wget -cq "$url" -O "$destination"
-    check_status "Gagal mengunduh file dari $url."
+    if wget -q "$url" -O "$tmp_file"; then
+        mv "$tmp_file" "$destination"
+    else
+        rm -f "$tmp_file"
+        error_exit "Gagal mengunduh file dari $url."
+    fi
 }
 
 # Fungsi untuk mengatur kepemilikan dan izin
