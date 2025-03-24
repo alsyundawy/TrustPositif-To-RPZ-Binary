@@ -6,7 +6,7 @@
 # Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta 
 # mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.
 # Dibuat oleh: Alsyundawy
-# Tanggal: 24 Januari 2025
+# Tanggal: JAKARTA, 25 MARET 2025
 
 
 # Warna untuk teks (4 warna terang)
