@@ -30,6 +30,7 @@ options {
 		//8.8.8.8;
 		//1.1.1.2;
 	};
+	
     // Disable query log (for performance)
     querylog no;
 	
@@ -62,11 +63,11 @@ options {
     tcp-clients 3000;          # Match the number of expected clients
     recursive-clients 3000;    # Slightly higher than client count
     tcp-listen-queue 1024;     # Increase the backlog queue size
-};
+	};
 
 include "/etc/bind/rndc.key";
 
 controls {
 	inet 127.0.0.1 port 953
 		allow { 127.0.0.1; } keys { "rndc-key"; };
-};
+	};
