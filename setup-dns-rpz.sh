@@ -1,12 +1,12 @@
 
 #!/usr/bin/env bash
 
-# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server
+# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server secara automatis
 # yang digunakan untuk mengelola DNS dengan konfigurasi RPZ (Response Policy Zone).
 # Script ini mengunduh dan mengonfigurasi file konfigurasi BIND9 serta 
 # mengunduh dan mengonfigurasi file RPZ binary untuk digunakan dalam sistem.
-# Dibuat oleh: Alsyundawy
-# Tanggal: JAKARTA, 25 MARET 2025
+# Dibuat oleh	: HARRY DERTIN SUTISNA ALSYUNDAWY
+# Tanggal		: JAKARTA, 25 MARET 2025
 
 
 # Warna untuk teks (4 warna terang)
@@ -80,8 +80,8 @@ fi
 # Menampilkan informasi script
 echo -e "${CYAN}# Script ini digunakan untuk menginstal dan mengonfigurasi BIND9 DNS server${NC}"
 echo -e "${CYAN}# dengan konfigurasi RPZ (Response Policy Zone).${NC}"
-echo -e "${YELLOW}# Dibuat oleh: Alsyundawy${NC}"
-echo -e "${YELLOW}# Tanggal: 13 Januari 2025${NC}"
+echo -e "${YELLOW}# Dibuat oleh: HARRY DERTIN SUTISNA ALSYUNDAWY${NC}"
+echo -e "${YELLOW}# Tanggal: JAKARTA, 25 MARET 2025${NC}"
 
 # Memperbaiki masalah hostname
 echo -e "${CYAN}Memperbaiki masalah hostname...${NC}"
@@ -89,6 +89,24 @@ if ! grep -q "$(hostname)" /etc/hosts; then
     echo "127.0.0.1 $(hostname)" | tee -a /etc/hosts > /dev/null
     check_status "Gagal memperbaiki konfigurasi /etc/hosts."
 fi
+
+
+# Menonaktifkan systemd-resolved dan networkd-wait-online
+systemctl disable --now systemd-resolved
+systemctl disable --now systemd-networkd-wait-online.service
+
+# Mengatur konfigurasi DNS
+unlink /etc/resolv.conf 2>/dev/null
+touch /etc/resolv.conf
+
+# Menulis ulang file resolv.conf dengan konfigurasi DNS yang diinginkan
+cat <<EOF > /etc/resolv.conf
+search google.com
+nameserver 127.0.0.0
+nameserver 43.247.23.161
+nameserver 43.247.23.188
+nameserver 1.1.1.2
+EOF
 
 # Memperbarui sistem secara komprehensif
 echo -e "${CYAN}Memperbarui sistem...${NC}"
