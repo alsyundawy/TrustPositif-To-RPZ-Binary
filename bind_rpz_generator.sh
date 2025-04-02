@@ -31,6 +31,7 @@ RESET="\033[0m"
 URL_TRUSTPOSITIF="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist_v2.txt"
 FILE_TRUSTPOSITIF="/etc/bind/zones/trustpositif.zones"
 CNAME_TRUSTPOSITIF="lamanlabuh.resolver.id."
+TMP_TRUSTPOSITIF="/tmp/trustpositif_domains.txt"
 
 # Fungsi untuk menampilkan pesan berwarna
 function cetak_pesan() {
