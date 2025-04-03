@@ -123,7 +123,24 @@ main() {
     cetak_pesan "$CYAN" "MEMULAI PEMBARUAN DATABASE DNS..."
     generate_trustpositif_rpz
     check_zone_files
+	
+	# Reload DNS and restart necessary services
+	cetak_pesan "$MAGENTA" "Reloading DNS and restarting necessary services..."
+	echo 3 > /proc/sys/vm/drop_caches
+	swapoff -a && swapon -a
 
+	# Clear logs and temporary files
+	truncate -s 0 /var/log/syslog /var/log/daemon.log /var/log/lastlog /var/log/auth.log /var/log/btmp
+	# truncate -s 0 /var/log/*
+	find /var/log -type f -regex ".*\.(log(\..*)?|gz|1|vmware-.*\.log)$" -delete
+	rm -rf /root/filter/*.tmp /etc/bind/zones/*.txt /etc/bind/*.txt /var/log/nginx/*
+
+	# Update root hints
+	wget -q -O /usr/share/dns/root.hints "https://www.internic.net/domain/named.root"
+
+	# Optimize journal logs
+	journalctl --vacuum-size=75M --vacuum-time=2d
+	
     cetak_pesan "$HIJAU" "[BERHASIL] Semua file zona berhasil diperbarui dan diverifikasi."
 }
 
