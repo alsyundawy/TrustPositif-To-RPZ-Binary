@@ -32,7 +32,11 @@ echo_error(){ echo -e "${MAGENTA}[ERROR] $*${NC}" >&2; exit 1; }
 echo_status(){ echo -e "${GREEN}[OK] $*${NC}"; }
 
 # Ensure running as root
-enforce_root(){ [[ $EUID -ne 0 ]] && { echo -e "${YELLOW}Elevating to root...${NC}"; exec sudo bash "$0" "$@"; }; }
+enforce_root(){
+  if [[ $EUID -ne 0 ]]; then
+    echo_error "This script must be run as root. Use 'sudo bash <(curl -sSL <URL>)' or download and run with sudo."
+  fi
+}
 
 # Disable dash as /bin/sh for reliability
 configure_dash(){
@@ -58,13 +62,18 @@ set_timezone(){
 
 # Fix /etc/hosts
 fix_hosts(){
-  hn="$(hostname)"
+  local hn="$(hostname)"
   grep -qF "$hn" /etc/hosts || { echo "127.0.0.1 $hn" >> /etc/hosts || echo_error "Failed updating /etc/hosts"; }
   echo_status "/etc/hosts ok"
 }
 
 # Disable conflicting services
-disable_conflicts(){ for svc in systemd-resolved systemd-networkd-wait-online; do systemctl disable --now "$svc" 2>/dev/null || :; done; echo_status "Conflicting services disabled"; }
+disable_conflicts(){
+  for svc in systemd-resolved systemd-networkd-wait-online; do
+    systemctl disable --now "$svc" 2>/dev/null || :
+  done
+  echo_status "Conflicting services disabled"
+}
 
 # Configure DNS resolver
 configure_resolv(){
@@ -92,26 +101,54 @@ update_system(){
 }
 
 # Prepare BIND directories
-prepare_directories(){ mkdir -p "$ZONES_DIR"; chown root:bind "$ZONES_DIR"; chmod 755 "$ZONES_DIR"; echo_status "Zones directory ready"; }
+prepare_directories(){
+  mkdir -p "$ZONES_DIR"
+  chown root:bind "$ZONES_DIR"
+  chmod 755 "$ZONES_DIR"
+  echo_status "Zones directory ready"
+}
 
 # Install BIND9 & dnsutils
-install_bind(){ echo -e "${CYAN}Installing BIND9 & dnsutils...${NC}"; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq bind9 dnsutils || echo_error "BIND9 install failed"; echo_status "BIND9 installed"; }
+install_bind(){
+  echo -e "${CYAN}Installing BIND9 & dnsutils...${NC}"
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq bind9 dnsutils || echo_error "BIND9 install failed"
+  echo_status "BIND9 installed"
+}
 
 # Download and set permissions for file
-download_and_perms(){ local url="$1" dest="$2" owner="$3" perms="$4"; echo -e "${CYAN}Downloading $url...${NC}"; curl -fsSL "$url" -o "$dest" || echo_error "Download failed: $url"; chown "$owner" "$dest"; chmod "$perms" "$dest"; echo_status "$dest ready"; }
+download_and_perms(){
+  local url="$1" dest="$2" owner="$3" perms="$4"
+  echo -e "${CYAN}Downloading $url...${NC}"
+  curl -fsSL "$url" -o "$dest" || echo_error "Download failed: $url"
+  chown "$owner" "$dest"
+  chmod "$perms" "$dest"
+  echo_status "$dest ready"
+}
 
 # Deploy BIND config files
-deploy_configs(){ for file in "${!CONFIG_URLS[@]}"; do download_and_perms "${CONFIG_URLS[$file]}" "${BIND_DIR}/$file" root:bind 644; done; }
+deploy_configs(){
+  for file in "${!CONFIG_URLS[@]}"; do
+    download_and_perms "${CONFIG_URLS[$file]}" "${BIND_DIR}/$file" root:bind 644
+  done
+}
 
 # Verify and restart BIND
-restart_bind(){ named-checkconf || echo_error "Invalid BIND config"; systemctl restart bind9 || echo_error "Failed restart BIND9"; echo_status "BIND9 running"; }
+restart_bind(){
+  named-checkconf || echo_error "Invalid BIND config"
+  systemctl restart bind9 || echo_error "Failed restart BIND9"
+  echo_status "BIND9 running"
+}
 
 # Setup RPZ binary & cron job
-setup_rpz(){ download_and_perms "$RPZ_URL" "$RPZ_BINARY" root:root 755; (crontab -l 2>/dev/null || true; echo "0 */12 * * * $RPZ_BINARY >/dev/null 2>&1") | crontab -; echo_status "RPZ cron ready"; }
+setup_rpz(){
+  download_and_perms "$RPZ_URL" "$RPZ_BINARY" root:root 755
+  (crontab -l 2>/dev/null || true; echo "0 */12 * * * $RPZ_BINARY >/dev/null 2>&1") | crontab -
+  echo_status "RPZ cron ready"
+}
 
 # Main execution
 main(){
-  enforce_root "$@"
+  enforce_root
   configure_dash
   clear_history
   set_timezone
