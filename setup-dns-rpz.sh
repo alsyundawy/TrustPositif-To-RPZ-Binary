@@ -3,7 +3,7 @@
 # setup-dns-rpz.sh
 # Automatically install/configure BIND9 with RPZ, hardening, locale, and timezone
 # Author       : HARRY DERTIN SUTISNA ALSYUNDAWY
-# Date         : Jakarta, 25 Maret 2025
+# Date         : Jakarta, 12 Mei 2025
 
 set -euo pipefail
 IFS=$'\n\t'
