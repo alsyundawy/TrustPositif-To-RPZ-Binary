@@ -1,28 +1,30 @@
 #!/usr/bin/env bash
 #
-# Optimized Installer & Configurator for BIND9 with RPZ (Response Policy Zone)
+# setup-dns-rpz.sh
+# Automatically install/configure BIND9 with RPZ, hardening, locale, and timezone
 # Author       : HARRY DERTIN SUTISNA ALSYUNDAWY
 # Date         : Jakarta, 25 Maret 2025
-# Description  : Automatic setup of BIND9 DNS server with RPZ binary, plus system hardening and locale settings.
 
 set -euo pipefail
 IFS=$'\n\t'
 
+# Banner
+echo "========================================"
+echo "  Starting DNS+RPZ Setup Script"
+echo "========================================"
+
 # Color definitions
-readonly CYAN="\033[1;36m"
-readonly YELLOW="\033[1;33m"
-readonly GREEN="\033[1;32m"
-readonly MAGENTA="\033[1;35m"
-readonly NC="\033[0m"  # No Color
+CYAN="\033[1;36m"
+YELLOW="\033[1;33m"
+GREEN="\033[1;32m"
+MAGENTA="\033[1;35m"
+NC="\033[0m"  # No Color
 
-# Script source URL (for reference only)
-readonly SCRIPT_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/setup-dns-rpz.sh"
-
-# Configuration variables
-readonly BIND_DIR="/etc/bind"
-readonly ZONES_DIR="${BIND_DIR}/zones"
-readonly RPZ_BINARY="/usr/local/bin/rpz"
-readonly RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/rpz"
+# Paths and URLs
+BIND_DIR="/etc/bind"
+ZONES_DIR="$BIND_DIR/zones"
+RPZ_BINARY="/usr/local/bin/rpz"
+RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/rpz"
 declare -A CONFIG_URLS=(
   ["named.conf.local"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/named.conf.local"
   ["named.conf.options"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/named.conf.options"
@@ -30,18 +32,18 @@ declare -A CONFIG_URLS=(
   ["whitelist.zones"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/zones/whitelist.zones"
 )
 
-# Error and status helpers
+# Helpers
 echo_error(){ echo -e "${MAGENTA}[ERROR] $*${NC}" >&2; exit 1; }
 echo_status(){ echo -e "${GREEN}[OK] $*${NC}"; }
 
-# Ensure running as root
+# Check root privileges
 ensure_root(){
   if [[ $EUID -ne 0 ]]; then
-    echo_error "This script must be run as root.\nRun: sudo bash -c \"curl -sSL $SCRIPT_URL | bash\""
+    echo_error "Must run as root. Use: sudo bash setup-dns-rpz.sh"
   fi
 }
 
-# Disable dash as /bin/sh for reliability
+# Disable dash as /bin/sh
 configure_dash(){
   echo -e "${CYAN}Disabling dash as /bin/sh...${NC}"
   echo "dash dash/sh boolean false" | debconf-set-selections
@@ -49,39 +51,39 @@ configure_dash(){
   echo_status "dash unlinked from /bin/sh"
 }
 
-# Clear bash history securely
+# Clear bash history secure
 clear_history(){
   echo -e "${CYAN}Clearing bash history...${NC}"
   history -c && history -w
-  echo_status "Bash history cleared"
+  echo_status "History cleared"
 }
 
-# Set timezone to Asia/Jakarta
+# Set timezone
 set_timezone(){
   echo -e "${CYAN}Setting timezone to Asia/Jakarta...${NC}"
-  timedatectl set-timezone Asia/Jakarta || echo_error "Failed to set timezone"
+  timedatectl set-timezone Asia/Jakarta || echo_error "Timezone set failed"
   echo_status "Timezone set"
 }
 
-# Fix /etc/hosts
+# Fix hosts
 fix_hosts(){
-  local hn="$(hostname)"
-  grep -qF "$hn" /etc/hosts || { echo "127.0.0.1 $hn" >> /etc/hosts || echo_error "Failed updating /etc/hosts"; }
-  echo_status "/etc/hosts ok"
+  echo -e "${CYAN}Updating /etc/hosts...${NC}"
+  hn=$(hostname)
+  grep -qF "$hn" /etc/hosts || echo "127.0.0.1 $hn" >> /etc/hosts
+  echo_status "/etc/hosts updated"
 }
 
-# Disable conflicting services
+# Disable services
 disable_conflicts(){
-  for svc in systemd-resolved systemd-networkd-wait-online; do
-    systemctl disable --now "$svc" 2>/dev/null || :
-  done
+  echo -e "${CYAN}Disabling systemd-resolved & networkd-wait-online...${NC}"
+  systemctl disable --now systemd-resolved systemd-networkd-wait-online.service 2>/dev/null || true
   echo_status "Conflicting services disabled"
 }
 
-# Configure DNS resolver
+# Configure resolv.conf
 configure_resolv(){
-  echo -e "${CYAN}Configuring /etc/resolv.conf...${NC}"
-  unlink /etc/resolv.conf 2>/dev/null || :
+  echo -e "${CYAN}Writing /etc/resolv.conf...${NC}"
+  unlink /etc/resolv.conf 2>/dev/null || true
   cat <<EOF > /etc/resolv.conf
 search google.com
 nameserver 127.0.0.1
@@ -89,67 +91,74 @@ nameserver 43.247.23.161
 nameserver 43.247.23.188
 nameserver 1.1.1.2
 EOF
-  echo_status "resolv.conf written"
+  echo_status "resolv.conf configured"
 }
 
-# System update & cleanup
+# Update system
 update_system(){
-  echo -e "${CYAN}Updating system...${NC}"
-  apt-get update -qq
-  DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq
-  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -qq
-  apt-get autoremove -y -qq
-  apt-get clean -qq
-  echo_status "System up-to-date"
+  echo -e "${CYAN}Updating package lists...${NC}"
+  apt-get update
+  echo -e "${CYAN}Upgrading packages...${NC}"
+  DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
+  apt-get autoremove -y
+  apt-get clean
+  echo_status "System updated"
 }
 
-# Prepare BIND directories
+# Prepare BIND dirs
 prepare_directories(){
+  echo -e "${CYAN}Creating zones directory...${NC}"
   mkdir -p "$ZONES_DIR"
   chown root:bind "$ZONES_DIR"
   chmod 755 "$ZONES_DIR"
-  echo_status "Zones directory ready"
+  echo_status "$ZONES_DIR ready"
 }
 
-# Install BIND9 & dnsutils
+# Install BIND
 install_bind(){
-  echo -e "${CYAN}Installing BIND9 & dnsutils...${NC}"
-  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq bind9 dnsutils || echo_error "BIND9 install failed"
-  echo_status "BIND9 installed"
+  echo -e "${CYAN}Installing bind9 & dnsutils...${NC}"
+  DEBIAN_FRONTEND=noninteractive apt-get install -y bind9 dnsutils || echo_error "Bind9 install failed"
+  echo_status "Bind9 installed"
 }
 
-# Download and set permissions for file
+# Download helper
 download_and_perms(){
   local url="$1" dest="$2" owner="$3" perms="$4"
-  echo -e "${CYAN}Downloading $url...${NC}"
-  curl -fsSL "$url" -o "$dest" || echo_error "Download failed: $url"
+  echo -e "${CYAN}Downloading $url${NC}"
+  curl -# -fSL "$url" -o "$dest" || echo_error "Download failed"
   chown "$owner" "$dest"
   chmod "$perms" "$dest"
   echo_status "$dest ready"
 }
 
-# Deploy BIND config files
+# Deploy config files
 deploy_configs(){
+  echo -e "${CYAN}Deploying BIND configs...${NC}"
   for file in "${!CONFIG_URLS[@]}"; do
-    download_and_perms "${CONFIG_URLS[$file]}" "${BIND_DIR}/$file" root:bind 644
+    download_and_perms "${CONFIG_URLS[$file]}" "$BIND_DIR/$file" root:bind 644
   done
 }
 
-# Verify and restart BIND
+# Restart BIND
 restart_bind(){
+  echo -e "${CYAN}Checking BIND config...${NC}"
   named-checkconf || echo_error "Invalid BIND config"
-  systemctl restart bind9 || echo_error "Failed restart BIND9"
+  echo -e "${CYAN}Restarting BIND9...${NC}"
+  systemctl restart bind9 || echo_error "BIND restart failed"
   echo_status "BIND9 running"
 }
 
-# Setup RPZ binary & cron job
+# Setup RPZ
 setup_rpz(){
+  echo -e "${CYAN}Installing RPZ binary...${NC}"
   download_and_perms "$RPZ_URL" "$RPZ_BINARY" root:root 755
+  echo -e "${CYAN}Adding cron job...${NC}"
   (crontab -l 2>/dev/null || true; echo "0 */12 * * * $RPZ_BINARY >/dev/null 2>&1") | crontab -
-  echo_status "RPZ cron ready"
+  echo_status "RPZ cron scheduled"
 }
 
-# Main execution
+# Main
 main(){
   ensure_root
   configure_dash
@@ -164,7 +173,7 @@ main(){
   deploy_configs
   restart_bind
   setup_rpz
-  echo -e "${GREEN}All done successfully!${NC}"
+  echo -e "${GREEN}=== All tasks completed successfully! ===${NC}"
 }
 
 main "$@"
