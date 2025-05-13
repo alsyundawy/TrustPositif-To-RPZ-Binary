@@ -15,8 +15,8 @@ readonly GREEN="\033[1;32m"
 readonly MAGENTA="\033[1;35m"
 readonly NC="\033[0m"  # No Color
 
-# Script source URL (used for self-elevation)
-readonly SCRIPT_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/setup-dns-rpz.sh"
+# Script source URL (for reference only)
+readonly SCRIPT_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/setup-dns-rpz.sh"
 
 # Configuration variables
 readonly BIND_DIR="/etc/bind"
@@ -34,14 +34,10 @@ declare -A CONFIG_URLS=(
 echo_error(){ echo -e "${MAGENTA}[ERROR] $*${NC}" >&2; exit 1; }
 echo_status(){ echo -e "${GREEN}[OK] $*${NC}"; }
 
-# Self-elevation to root (supports curl|bash)
-enforce_root(){
+# Ensure running as root
+ensure_root(){
   if [[ $EUID -ne 0 ]]; then
-    echo -e "${YELLOW}Elevating to root...${NC}"
-    tmpfile=$(mktemp)
-    trap 'rm -f "$tmpfile"' EXIT
-    curl -fsSL "$SCRIPT_URL" -o "$tmpfile" || echo_error "Failed to download script for elevation"
-    exec sudo bash "$tmpfile" "$@"
+    echo_error "This script must be run as root.\nRun: sudo bash -c \"curl -sSL $SCRIPT_URL | bash\""
   fi
 }
 
@@ -155,7 +151,7 @@ setup_rpz(){
 
 # Main execution
 main(){
-  enforce_root "$@"
+  ensure_root
   configure_dash
   clear_history
   set_timezone
