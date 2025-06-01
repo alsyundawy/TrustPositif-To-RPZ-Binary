@@ -136,7 +136,13 @@ download_and_perms(){
 deploy_configs(){
   echo -e "${CYAN}Deploying BIND configs...${NC}"
   for file in "${!CONFIG_URLS[@]}"; do
-    download_and_perms "${CONFIG_URLS[$file]}" "$BIND_DIR/$file" root:bind 644
+    # Tentukan direktori tujuan berdasarkan nama file
+    if [[ "$file" == *".zones" ]]; then
+      dest_dir="$ZONES_DIR"
+    else
+      dest_dir="$BIND_DIR"
+    fi
+    download_and_perms "${CONFIG_URLS[$file]}" "$dest_dir/$file" root:bind 644
   done
 }
 
