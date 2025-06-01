@@ -7,22 +7,26 @@
 //include "/etc/bind/zones.rfc1918";
 
 zone "trustpositif" IN {
-      type master;
-      file "/etc/bind/zones/trustpositif.zones";
-      allow-query {any;};
-      allow-update {none;};
+    type master;
+    file "/etc/bind/zones/trustpositif.zones";
+    allow-query { any; };
+    allow-update { none; };
+    notify no;
 };
 
 zone "safesearch" IN {
-      type master;
-      file "/etc/bind/zones/safesearch.zones";
-      allow-query {any;};
-      allow-update {none;};
+    type master;
+    file "/etc/bind/zones/safesearch.zones";
+    allow-query { any; };
+    allow-update { none; };
+    notify no;
 };
 
 zone "whitelist" IN {
-      type master;
-      file "/etc/bind/zones/whitelist.zones";
-      allow-query {any;};
-      allow-update {none;};
+    type master;
+    file "/etc/bind/zones/whitelist.zones";
+    allow-query { any; };
+    allow-update { none; };
+    notify no;
 };
+
