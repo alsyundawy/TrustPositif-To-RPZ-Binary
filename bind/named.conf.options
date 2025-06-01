@@ -18,9 +18,7 @@ options {
 	
 	// Enable RPZ
 	response-policy { 
-		zone "safesearch" policy given;
 		zone "trustpositif" policy given;
-		zone "whitelist" policy passthru;
 		}
 	break-dnssec yes qname-wait-recurse no recursive-only yes nsip-wait-recurse no max-policy-ttl 60s;	
 
