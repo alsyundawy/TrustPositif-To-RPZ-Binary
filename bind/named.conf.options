@@ -18,9 +18,12 @@ options {
 	
 	// Enable RPZ
 	response-policy { 
-			zone "trustpositif" policy given;
-			}
-	break-dnssec yes qname-wait-recurse no max-policy-ttl 60s;	
+		zone "safesearch" policy given;
+		zone "trustpositif" policy given;
+		zone "whitelist" policy passthru;
+		}
+	break-dnssec yes qname-wait-recurse no recursive-only yes nsip-wait-recurse no max-policy-ttl 60s;	
+
 
     // Security settings
     version "not currently available"; // Hide version number
