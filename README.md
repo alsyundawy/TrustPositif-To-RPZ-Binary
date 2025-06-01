@@ -30,8 +30,8 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 #
 # setup-dns-rpz.sh
 # Automatically install/configure BIND9 with RPZ, hardening, locale, and timezone
-# Author       : HARRY DERTIN SUTISNA ALSYUNDAWY
-# Date         : Jakarta, 12 Mei 2025
+# Author       : HARRY DERTIN SUTISNA ALSYUNDAWY (modifikasi)
+# Date         : Jakarta, 02 Juni 2025
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -134,7 +134,14 @@ update_system(){
   echo_status "System updated"
 }
 
-# Prepare BIND dirs
+# Install BIND
+install_bind(){
+  echo -e "${CYAN}Installing bind9 & dnsutils...${NC}"
+  DEBIAN_FRONTEND=noninteractive apt-get install -y bind9 dnsutils || echo_error "Bind9 install failed"
+  echo_status "Bind9 installed"
+}
+
+# Prepare BIND dirs (pastikan grup 'bind' sudah ada setelah install_bind)
 prepare_directories(){
   echo -e "${CYAN}Creating zones directory...${NC}"
   mkdir -p "$ZONES_DIR"
@@ -143,19 +150,12 @@ prepare_directories(){
   echo_status "$ZONES_DIR ready"
 }
 
-# Install BIND
-install_bind(){
-  echo -e "${CYAN}Installing bind9 & dnsutils...${NC}"
-  DEBIAN_FRONTEND=noninteractive apt-get install -y bind9 dnsutils || echo_error "Bind9 install failed"
-  echo_status "Bind9 installed"
-}
-
 # Download helper
 download_and_perms(){
   local url="$1" dest="$2" owner="$3" perms="$4"
   echo -e "${CYAN}Downloading $url${NC}"
-  curl -# -fSL "$url" -o "$dest" || echo_error "Download failed"
-  chown "$owner" "$dest"
+  curl -# -fSL "$url" -o "$dest" || echo_error "Download failed: $url"
+  chown "$owner" "$dest" || echo_error "Failed chown on $dest"
   chmod "$perms" "$dest"
   echo_status "$dest ready"
 }
@@ -196,15 +196,17 @@ main(){
   disable_conflicts
   configure_resolv
   update_system
-  prepare_directories
   install_bind
+  prepare_directories
   deploy_configs
   restart_bind
   setup_rpz
+
   echo -e "${GREEN}=== All tasks completed successfully! ===${NC}"
 }
 
 main "$@"
+
 
 ````
 
