@@ -1,30 +1,50 @@
 #!/usr/bin/env bash
 #
 # setup-dns-rpz.sh
-# Automatically install/configure BIND9 with RPZ, hardening, locale, and timezone
-# Author       : HARRY DERTIN SUTISNA ALSYUNDAWY (modifikasi)
-# Date         : Jakarta, 02 Juni 2025
+# Menginstal dan mengonfigurasi BIND9 dengan Response Policy Zone (RPZ), system hardening, pengaturan zona waktu Asia/Jakarta, dan integrasi daftar TrustPositif.
+# Fitur:
+#   - Memeriksa izin root sebelum eksekusi
+#   - Konfirmasi instalasi DNS TrustPositif di awal
+#   - Menonaktifkan layanan konflik (systemd-resolved, dll.)
+#   - Mengatur file resolv.conf dan hosts
+#   - Memperbarui sistem operasi
+#   - Mengunduh dan mengatur konfigurasi BIND serta zona TrustPositif
+#   - Menjadwalkan pembaruan RPZ melalui cron
+# Penulis       : Harry Dertin Sutisna Alsyundawy
+# Dibuat        : Jakarta, 25 November 2024
+# Dimodifikasi  : Jakarta, 02 Juli 2025
 
 set -euo pipefail
 IFS=$'\n\t'
 
-# Banner
-echo "========================================"
-echo "  Starting DNS+RPZ Setup Script"
-echo "========================================"
-
-# Color definitions
+# Warna ANSI untuk tampilan
+MERAH="\033[1;31m"
+HIJAU="\033[1;32m"
+KUNING="\033[1;33m"
 CYAN="\033[1;36m"
-YELLOW="\033[1;33m"
-GREEN="\033[1;32m"
 MAGENTA="\033[1;35m"
-NC="\033[0m"  # No Color
+BIRU="\033[1;34m"
+PUTIH="\033[1;37m"
+HITAM="\033[1;30m"
+ABUABU="\033[1;90m"
+MERAH_TUA="\033[1;91m"
+HIJAU_TUA="\033[1;92m"
+KUNING_TUA="\033[1;93m"
+CYAN_TUA="\033[1;96m"
+MAGENTA_TUA="\033[1;95m"
+BIRU_TUA="\033[1;94m"
+PUTIH_TUA="\033[1;97m"
+RESET="\033[0m"
 
-# Paths and URLs
+# Jalur dan URL yang digunakan
 BIND_DIR="/etc/bind"
 ZONES_DIR="$BIND_DIR/zones"
 RPZ_BINARY="/usr/local/bin/rpz"
 RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/rpz"
+URL_TRUSTPOSITIF="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
+FILE_TRUSTPOSITIF="/etc/bind/zones/trustpositif.zones"
+CNAME_TRUSTPOSITIF="lamanlabuh.resolver.id."
+TMP_TRUSTPOSITIF="/tmp/trustpositif_domains.txt"
 declare -A CONFIG_URLS=(
   ["named.conf.local"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/named.conf.local"
   ["named.conf.options"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/named.conf.options"
@@ -32,57 +52,101 @@ declare -A CONFIG_URLS=(
   ["whitelist.zones"]="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/main/bind/zones/whitelist.zones"
 )
 
-# Helpers
-echo_error(){ echo -e "${MAGENTA}[ERROR] $*${NC}" >&2; exit 1; }
-echo_status(){ echo -e "${GREEN}[OK] $*${NC}"; }
+# Fungsi untuk mencetak pesan dengan warna
+cetak_pesan() {
+    echo -e "$1$2${RESET}"
+}
 
-# Check root privileges
-ensure_root(){
+# Fungsi pembantu untuk pesan
+echo_error() { cetak_pesan "$MERAH" "[KESALAHAN] $*" >&2; exit 1; }
+echo_status() { cetak_pesan "$HIJAU" "[OK] $*"; }
+echo_info() { cetak_pesan "$CYAN" "[INFO] $*"; }
+
+# Konfirmasi instalasi DNS server TrustPositif
+konfirmasi_instalasi() {
+  cetak_pesan "$KUNING" "Apakah Anda ingin menginstal DNS server TrustPositif? (yes/y atau no/n): "
+  read -r jawaban
+  case "$jawaban" in
+    [Yy]|[Yy][Ee][Ss])
+      cetak_pesan "$HIJAU" "Melanjutkan instalasi..."
+      ;;
+    [Nn]|[Nn][Oo])
+      cetak_pesan "$MERAH" "Instalasi dibatalkan."
+      exit 0
+      ;;
+    *)
+      echo_error "Jawaban tidak valid. Gunakan yes/y atau no/n."
+      ;;
+  esac
+}
+
+# Menampilkan banner awal
+tampilkan_banner() {
+  cetak_pesan "$BIRU_TUA" "========================================"
+  cetak_pesan "$BIRU_TUA" "  Memulai Skrip Pengaturan DNS+RPZ"
+  cetak_pesan "$BIRU_TUA" "========================================"
+}
+
+# Menampilkan pemberitahuan awal
+tampilkan_pemberitahuan() {
+  cetak_pesan "$MERAH_TUA" "######################################################################"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "##  PEMBERITAHUAN, UNTUK KINERJA OPTIMAL SILAKAN GUNAKAN:           ##"
+  cetak_pesan "$MERAH_TUA" "##  - ISC BIND versi 9.20.xx Atau 9.21.xx dari isc.org/download     ##"
+  cetak_pesan "$MERAH_TUA" "##  - CPU minimal 4 inti                                            ##"
+  cetak_pesan "$MERAH_TUA" "##  - RAM minimal 16GB                                              ##"
+  cetak_pesan "$MERAH_TUA" "##  - OS Ubuntu/Debian dengan kernel Zabbly+ terbaru                ##"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "######################################################################"
+}
+
+# Memastikan skrip dijalankan sebagai root
+pastikan_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo_error "Must run as root. Use: sudo bash setup-dns-rpz.sh"
+    echo_error "Harus dijalankan sebagai root. Gunakan: sudo bash setup-dns-rpz.sh"
   fi
 }
 
-# Disable dash as /bin/sh
-configure_dash(){
-  echo -e "${CYAN}Disabling dash as /bin/sh...${NC}"
+# Menonaktifkan dash sebagai /bin/sh
+konfigurasi_dash() {
+  echo_info "Menonaktifkan dash sebagai /bin/sh..."
   echo "dash dash/sh boolean false" | debconf-set-selections
-  dpkg-reconfigure -f noninteractive dash || echo_error "Failed to reconfigure dash"
-  echo_status "dash unlinked from /bin/sh"
+  dpkg-reconfigure -f noninteractive dash || echo_error "Gagal mengonfigurasi ulang dash"
+  echo_status "dash diputuskan dari /bin/sh"
 }
 
-# Clear bash history secure
-clear_history(){
-  echo -e "${CYAN}Clearing bash history...${NC}"
+# Membersihkan riwayat bash
+bersihkan_riwayat() {
+  echo_info "Membersihkan riwayat bash..."
   history -c && history -w
-  echo_status "History cleared"
+  echo_status "Riwayat dibersihkan"
 }
 
-# Set timezone
-set_timezone(){
-  echo -e "${CYAN}Setting timezone to Asia/Jakarta...${NC}"
-  timedatectl set-timezone Asia/Jakarta || echo_error "Timezone set failed"
-  echo_status "Timezone set"
+# Mengatur zona waktu ke Asia/Jakarta
+atur_zona_waktu() {
+  echo_info "Mengatur zona waktu ke Asia/Jakarta..."
+  timedatectl set-timezone Asia/Jakarta || echo_error "Pengaturan zona waktu gagal"
+  echo_status "Zona waktu diatur"
 }
 
-# Fix hosts
-fix_hosts(){
-  echo -e "${CYAN}Updating /etc/hosts...${NC}"
+# Memperbaiki file /etc/hosts
+perbaiki_hosts() {
+  echo_info "Memperbarui /etc/hosts..."
   hn=$(hostname)
   grep -qF "$hn" /etc/hosts || echo "127.0.0.1 $hn" >> /etc/hosts
-  echo_status "/etc/hosts updated"
+  echo_status "/etc/hosts diperbarui"
 }
 
-# Disable services
-disable_conflicts(){
-  echo -e "${CYAN}Disabling systemd-resolved & networkd-wait-online...${NC}"
+# Menonaktifkan layanan yang bertentangan
+nonaktifkan_konflik() {
+  echo_info "Menonaktifkan systemd-resolved & networkd-wait-online..."
   systemctl disable --now systemd-resolved systemd-networkd-wait-online.service 2>/dev/null || true
-  echo_status "Conflicting services disabled"
+  echo_status "Layanan yang bertentangan dinonaktifkan"
 }
 
-# Configure resolv.conf
-configure_resolv(){
-  echo -e "${CYAN}Writing /etc/resolv.conf...${NC}"
+# Mengatur file resolv.conf
+konfigurasi_resolv() {
+  echo_info "Menulis /etc/resolv.conf..."
   unlink /etc/resolv.conf 2>/dev/null || true
   cat <<EOF > /etc/resolv.conf
 search google.com
@@ -91,99 +155,116 @@ nameserver 43.247.23.161
 nameserver 43.247.23.188
 nameserver 1.1.1.2
 EOF
-  echo_status "resolv.conf configured"
+  echo_status "resolv.conf dikonfigurasi"
 }
 
-# Update system
-update_system(){
-  echo -e "${CYAN}Updating package lists...${NC}"
+# Memperbarui sistem operasi
+perbarui_sistem() {
+  echo_info "Memperbarui daftar paket..."
   apt-get update
-  echo -e "${CYAN}Upgrading packages...${NC}"
+  echo_info "Meningkatkan paket..."
   DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
   DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
   apt-get autoremove -y
   apt-get clean
-  echo_status "System updated"
+  echo_status "Sistem diperbarui"
 }
 
-# Install BIND
-install_bind(){
-  echo -e "${CYAN}Installing bind9 & dnsutils...${NC}"
-  DEBIAN_FRONTEND=noninteractive apt-get install -y bind9 dnsutils || echo_error "Bind9 install failed"
-  echo_status "Bind9 installed"
+# Menginstal BIND9 dan dnsutils
+instal_bind() {
+  echo_info "Menginstal bind9 & dnsutils..."
+  DEBIAN_FRONTEND=noninteractive apt-get install -y bind9 dnsutils || echo_error "Instalasi Bind9 gagal"
+  echo_status "Bind9 diinstal"
 }
 
-# Prepare BIND dirs (pastikan grup 'bind' sudah ada setelah install_bind)
-prepare_directories(){
-  echo -e "${CYAN}Creating zones directory...${NC}"
+# Menyiapkan direktori untuk zona BIND
+siapkan_direktori() {
+  echo_info "Membuat direktori zona..."
   mkdir -p "$ZONES_DIR"
   chown root:bind "$ZONES_DIR"
   chmod 755 "$ZONES_DIR"
-  echo_status "$ZONES_DIR ready"
+  echo_status "$ZONES_DIR siap"
 }
 
-# Download helper
-download_and_perms(){
-  local url="$1" dest="$2" owner="$3" perms="$4"
-  echo -e "${CYAN}Downloading $url${NC}"
-  curl -# -fSL "$url" -o "$dest" || echo_error "Download failed: $url"
-  chown "$owner" "$dest" || echo_error "Failed chown on $dest"
-  chmod "$perms" "$dest"
-  echo_status "$dest ready"
+# Fungsi untuk mengunduh file dan mengatur izin
+unduh_dan_izin() {
+  local url="$1" dest="$2" pemilik="$3" izin="$4"
+  echo_info "Mengunduh $url"
+  curl -# -fSL "$url" -o "$dest" || echo_error "Unduhan gagal: $url"
+  chown "$pemilik" "$dest" || echo_error "Gagal mengubah kepemilikan pada $dest"
+  chmod "$izin" "$dest"
+  echo_status "$dest siap"
 }
 
-# Deploy config files
-deploy_configs(){
-  echo -e "${CYAN}Deploying BIND configs...${NC}"
+# Menyebarkan file konfigurasi BIND
+sebarkan_konfigurasi() {
+  echo_info "Menyebarkan konfigurasi BIND..."
   for file in "${!CONFIG_URLS[@]}"; do
-    # Tentukan direktori tujuan berdasarkan nama file
     if [[ "$file" == *".zones" ]]; then
       dest_dir="$ZONES_DIR"
     else
       dest_dir="$BIND_DIR"
     fi
-    download_and_perms "${CONFIG_URLS[$file]}" "$dest_dir/$file" root:bind 644
+    unduh_dan_izin "${CONFIG_URLS[$file]}" "$dest_dir/$file" root:bind 644
   done
 }
 
-# Restart BIND
-restart_bind(){
-  echo -e "${CYAN}Checking BIND config...${NC}"
-  named-checkconf || echo_error "Invalid BIND config"
-  echo -e "${CYAN}Restarting BIND9...${NC}"
-  systemctl restart bind9 || echo_error "BIND restart failed"
-  echo_status "BIND9 running"
+# Mengatur zona TrustPositif
+atur_trustpositif() {
+  echo_info "Mengatur zona TrustPositif..."
+  unduh_dan_izin "$URL_TRUSTPOSITIF" "$TMP_TRUSTPOSITIF" root:root 644
+  echo_info "Menghasilkan $FILE_TRUSTPOSITIF..."
+  echo -e "\$TTL 86400\n@ IN SOA ns1.localhost. admin.localhost. ( $(date +%Y%m%d01) 3600 1800 604800 86400 )\n@ IN NS ns1.localhost." > "$FILE_TRUSTPOSITIF"
+  while IFS= read -r domain; do
+    [[ -z "$domain" || "$domain" =~ ^# ]] && continue
+    echo "$domain CNAME $CNAME_TRUSTPOSITIF" >> "$FILE_TRUSTPOSITIF"
+  done < "$TMP_TRUSTPOSITIF"
+  chown root:bind "$FILE_TRUSTPOSITIF"
+  chmod 644 "$FILE_TRUSTPOSITIF"
+  rm -f "$TMP_TRUSTPOSITIF"
+  echo_status "Zona TrustPositif dikonfigurasi"
 }
 
-# Setup RPZ
-setup_rpz(){
-  echo -e "${CYAN}Installing RPZ binary...${NC}"
-  download_and_perms "$RPZ_URL" "$RPZ_BINARY" root:root 755
-  echo -e "${CYAN}Adding cron job...${NC}"
+# Memulai ulang layanan BIND
+mulai_ulang_bind() {
+  echo_info "Memeriksa konfigurasi BIND..."
+  named-checkconf || echo_error "Konfigurasi BIND tidak valid"
+  echo_info "Memulai ulang BIND9..."
+  systemctl restart bind9 || echo_error "Mulai ulang BIND gagal"
+  echo_status "BIND9 berjalan"
+}
+
+# Mengatur RPZ
+atur_rpz() {
+  echo_info "Menginstal biner RPZ..."
+  unduh_dan_izin "$RPZ_URL" "$RPZ_BINARY" root:root 755
+  echo_info "Menambahkan tugas cron..."
   (crontab -l 2>/dev/null || true; echo "0 */12 * * * $RPZ_BINARY >/dev/null 2>&1") | crontab -
-  echo_status "RPZ cron scheduled"
+  echo_status "Tugas cron RPZ dijadwalkan"
 }
 
-# Main
-main(){
-  ensure_root
-  configure_dash
-  clear_history
-  set_timezone
-  fix_hosts
-  disable_conflicts
-  configure_resolv
-  update_system
+# Fungsi utama untuk menjalankan semua langkah
+utama() {
+  konfirmasi_instalasi
+  pastikan_root
+  tampilkan_banner
+  tampilkan_pemberitahuan
+  konfigurasi_dash
+  bersihkan_riwayat
+  atur_zona_waktu
+  perbaiki_hosts
+  nonaktifkan_konflik
+  konfigurasi_resolv
+  perbarui_sistem
+  instal_bind
+  siapkan_direktori
+  sebarkan_konfigurasi
+  atur_trustpositif
+  mulai_ulang_bind
+  atur_rpz
 
-  # Pastikan BIND terinstal sebelum membuat direktori-zones agar grup 'bind' sudah ada
-  install_bind
-  prepare_directories
-
-  deploy_configs
-  restart_bind
-  setup_rpz
-
-  echo -e "${GREEN}=== All tasks completed successfully! ===${NC}"
+  cetak_pesan "$HIJAU_TUA" "=== Semua tugas selesai dengan sukses! ==="
 }
 
-main "$@"
+# Menjalankan fungsi utama
+utama "$@"

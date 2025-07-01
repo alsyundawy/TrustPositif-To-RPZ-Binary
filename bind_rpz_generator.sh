@@ -39,15 +39,15 @@ cetak_pesan() {
     echo -e "$1$2${RESET}"
 }
 # Pemberitahuan awal
-cetak_pesan "$MERAH_TUA" "######################################################################"
-cetak_pesan "$MERAH_TUA" "##                                                                  ##"
-cetak_pesan "$MERAH_TUA" "##  PEMBERITAHUAN UNTUK PERFORMA OPTIMAL, SILAHKAN GUNAKAN:         ##"
-cetak_pesan "$MERAH_TUA" "##  - ISC BIND versi 9.20.xx Atau 9.21.xx dari isc.org/download     ##"
-cetak_pesan "$MERAH_TUA" "##  - CPU minimal 4 core                                            ##"
-cetak_pesan "$MERAH_TUA" "##  - RAM minimal 16GB                                              ##"
-cetak_pesan "$MERAH_TUA" "##  - OS Ubuntu/Debian dengan kernel Zabbly+ terbaru                ##"
-cetak_pesan "$MERAH_TUA" "##                                                                  ##"
-cetak_pesan "$MERAH_TUA" "######################################################################"
+  cetak_pesan "$MERAH_TUA" "######################################################################"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "##  PEMBERITAHUAN, UNTUK KINERJA OPTIMAL SILAKAN GUNAKAN:           ##"
+  cetak_pesan "$MERAH_TUA" "##  - ISC BIND versi 9.20.xx Atau 9.21.xx dari isc.org/download     ##"
+  cetak_pesan "$MERAH_TUA" "##  - CPU minimal 4 inti                                            ##"
+  cetak_pesan "$MERAH_TUA" "##  - RAM minimal 16GB                                              ##"
+  cetak_pesan "$MERAH_TUA" "##  - OS Ubuntu/Debian dengan kernel Zabbly+ terbaru                ##"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "######################################################################"
 
 # Fungsi untuk menampilkan banner
 tampilkan_banner() {
