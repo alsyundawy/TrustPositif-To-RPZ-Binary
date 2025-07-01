@@ -234,7 +234,9 @@ crontab -e
 curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/setup-dns-rpz.sh | bash
 
 ````
-<img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
+
+![image](https://github.com/user-attachments/assets/b4d1a6fa-5bbe-4972-a93c-671072302bcb)
+
 -
 
 
