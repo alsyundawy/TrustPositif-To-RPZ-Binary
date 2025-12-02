@@ -1,0 +1,74 @@
+options {
+	directory "/var/cache/bind";
+	listen-on port 53 { any; };
+	listen-on-v6 port 53 { any; };
+
+	max-cache-size 	1G;      // maximum cache size of 10MB
+	max-cache-ttl 3600;        // limit cached record to a 60s TTL
+	max-ncache-ttl 3600;       // limit cache neg. resp. to a 60s TTL
+	
+	// ACL for recursion
+
+	allow-query		{ any; };
+	allow-query-on	{ any; };
+	allow-recursion			{	any; };
+	allow-recursion-on		{	any; };
+	allow-query-cache		{	any; };
+	allow-query-cache-on	{	any; };
+	
+	// Enable RPZ
+	response-policy { 
+		zone "trustpositif" policy given;
+		}
+	break-dnssec yes qname-wait-recurse no recursive-only yes nsip-wait-recurse no max-policy-ttl 60s;	
+
+
+    // Security settings
+    version "not currently available"; // Hide version number
+
+	// Forwarders
+	forwarders {
+		//8.8.8.8;
+		//1.1.1.2;
+	};
+	
+    // Disable query log (for performance)
+    querylog no;
+	
+    // Enable recursion
+    recursion yes;
+	
+    // Security and performance settings
+    dnssec-validation no;
+    minimal-responses yes;
+    auth-nxdomain no;  # Conform to RFC1035
+    request-ixfr yes;
+
+    // Rate limiting
+    rate-limit {
+        responses-per-second 64;
+        all-per-second 256;
+        window 3;
+        max-table-size 4096;
+        min-table-size 1024;
+        ipv4-prefix-length 32;
+        ipv6-prefix-length 64;
+        slip 2;
+        errors-per-second 10;
+        nxdomains-per-second 80;
+        qps-scale 300;
+        log-only no;
+    };
+
+    // Client limits for 5555 clients
+    tcp-clients 3000;          # Match the number of expected clients
+    recursive-clients 3000;    # Slightly higher than client count
+    tcp-listen-queue 1024;     # Increase the backlog queue size
+	};
+
+include "/etc/bind/rndc.key";
+
+controls {
+	inet 127.0.0.1 port 953
+		allow { 127.0.0.1; } keys { "rndc-key"; };
+	};

@@ -1,0 +1,187 @@
+#!/bin/bash
+
+################################################################################################################
+# NAMA SCRIPT        : TRUSTPOSITIF-RPZ-DNS-ZONE-UPDATER.SH
+# FUNGSI             : MEMPERBARUI ZONA DNS DENGAN DATA TRUSTPOSITIF
+# DESKRIPSI          : MENGUNDUH DATA TRUSTPOSITIF DAN MENGONVERSINYA KE FORMAT RPZ UNTUK BIND
+# AUTHOR             : HARRY DERTIN SUTISNA
+# DIBUAT PADA        : JAKARTA, 25 NOVEMBER 2024
+# DIMODIFIKASI PADA  : 01 JULY 2025
+################################################################################################################
+
+# Warna ANSI
+MERAH="\033[1;31m"
+HIJAU="\033[1;32m"
+KUNING="\033[1;33m"
+CYAN="\033[1;36m"
+MAGENTA="\033[1;35m"
+BIRU="\033[1;34m"
+PUTIH="\033[1;37m"
+HITAM="\033[1;30m"
+ABUABU="\033[1;90m"
+MERAH_TUA="\033[1;91m"
+HIJAU_TUA="\033[1;92m"
+KUNING_TUA="\033[1;93m"
+CYAN_TUA="\033[1;96m"
+MAGENTA_TUA="\033[1;95m"
+BIRU_TUA="\033[1;94m"
+PUTIH_TUA="\033[1;97m"
+RESET="\033[0m"
+
+# Variabel
+URL_TRUSTPOSITIF="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
+FILE_TRUSTPOSITIF="/etc/bind/zones/trustpositif.zones"
+CNAME_TRUSTPOSITIF="lamanlabuh.resolver.id."
+TMP_TRUSTPOSITIF="/tmp/trustpositif_domains.txt"
+
+# Fungsi untuk menampilkan pesan berwarna
+cetak_pesan() {
+    echo -e "$1$2${RESET}"
+}
+# Pemberitahuan awal
+  cetak_pesan "$MERAH_TUA" "######################################################################"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "##  PEMBERITAHUAN, UNTUK KINERJA OPTIMAL SILAKAN GUNAKAN:           ##"
+  cetak_pesan "$MERAH_TUA" "##  - ISC BIND versi 9.20.xx Atau 9.21.xx dari isc.org/download     ##"
+  cetak_pesan "$MERAH_TUA" "##  - CPU minimal 4 inti                                            ##"
+  cetak_pesan "$MERAH_TUA" "##  - RAM minimal 16GB                                              ##"
+  cetak_pesan "$MERAH_TUA" "##  - OS Ubuntu/Debian dengan kernel Zabbly+ terbaru                ##"
+  cetak_pesan "$MERAH_TUA" "##                                                                  ##"
+  cetak_pesan "$MERAH_TUA" "######################################################################"
+
+# Fungsi untuk menampilkan banner
+tampilkan_banner() {
+    cetak_pesan "$CYAN" "PEMBAHARUAN DATABASE INTERNET SEHAT TRUSTPOSITIF DIPROSES"
+    echo -e "${MAGENTA}
+   _   _   _   _   _     _   _     _   _   _   _   _   _   _   _   _   _  
+  / \ / \ / \ / \ / \   / \ / \   / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ 
+ ( H | A | R | R | Y ) ( D | S ) ( A | L | S | Y | U | N | D | A | W | Y )
+  \_/ \_/ \_/ \_/ \_/   \_/ \_/   \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ 
+${RESET}"
+    echo -e "${CYAN}############################################################################${RESET}"
+    echo -e "${CYAN}##                                                                        ##${RESET}"
+    echo -e "${CYAN}##${MERAH}           PEMBAHARUAN DATABASE INTERNET SEHAT TRUSTPOSITIF             ${CYAN}##${RESET}"
+    echo -e "${CYAN}##${MAGENTA}                        UNTUK DNS FILTER ISP                            ${CYAN}##${RESET}"
+    echo -e "${CYAN}##                                                                        ##${RESET}"
+    echo -e "${CYAN}##${CYAN}      SCRIPT INI DIBUAT & DIMODIFIKASI OLEH HARRY DS ALSYUNDAWY         ${CYAN}##${RESET}"
+    echo -e "${CYAN}##${BIRU}         ALSYUNDAWY@GMAIL.COM | 08568515212 | ALSYUNDAWY.COM            ${CYAN}##${RESET}"
+    echo -e "${CYAN}##${KUNING}                    DIBUAT PADA 25 NOVEMBER 2024                        ${CYAN}##${RESET}"
+    echo -e "${CYAN}##${HIJAU_TUA}                     DIMODIFIKASI 01 JULI 2025                          ${CYAN}##${RESET}"
+    echo -e "${CYAN}##                                                                        ##${RESET}"
+    echo -e "${CYAN}############################################################################${RESET}"
+}
+
+# Fungsi untuk memeriksa dependensi
+check_dependencies() {
+    local deps=("curl" "awk" "named-checkzone")
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" &>/dev/null; then
+            cetak_pesan "$MERAH" "[ERROR] $dep tidak ditemukan. Silakan instal terlebih dahulu."
+            exit 1
+        fi
+    done
+}
+
+# Fungsi untuk membuat header RPZ
+generate_rpz_header() {
+    cat << EOF
+;
+;############################################################################
+;  _   _   _   _   _     _   _     _   _   _   _   _   _   _   _   _   _  
+; / \ / \ / \ / \ / \   / \ / \   / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ 
+;( H | A | R | R | Y ) ( D | S ) ( A | L | S | Y | U | N | D | A | W | Y )
+; \_/ \_/ \_/ \_/ \_/   \_/ \_/   \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ 
+;
+;############################################################################
+; RPZ FILE GENERATED BY 	: trustpositif-rpz-dns-zone-updater.sh
+; DIBUAT PADA 				: 25 NOVEMBER 2024
+; DIMODIFIKASI PADA 		: $(date '+%Y-%m-%d %H:%M:%S')
+; VERSION            		: $(date '+%y%m%d%H%M')
+; SYNTAX             		: RPZ
+; AUTHOR					: HARRY DERTIN SUTISNA ALSYUNDAWY
+; EMAIL						: ALSYUNDAWY@GMAIL.COM
+; WHATSAPP/TELEGRAM/CALL	: +628568515212 & +6281298986464
+; HOMEPAGE					: HTTPS://ALSYUNDAWY.COM
+;############################################################################
+;
+\$TTL 300
+@ IN SOA dns.alsyundawy.net.id. hostmaster.alsyundawy.net.id. (
+    $(date '+%y%m%d%H%M') ; Serial
+    10800      ; Refresh
+    120        ; Retry
+    604800     ; Expire
+    3600  )    ; Minimum TTL
+@ IN NS lamanlabuh.resolver.id.
+EOF
+}
+
+# Fungsi untuk mengunduh dan memproses TrustPositif
+generate_trustpositif_rpz() {
+    cetak_pesan "$HIJAU" "Mengunduh data TrustPositif..."
+    if ! curl -fsSL "$URL_TRUSTPOSITIF" | tr '[:upper:]' '[:lower:]' > "$TMP_TRUSTPOSITIF"; then
+        cetak_pesan "$MERAH" "[ERROR] Gagal mengunduh data TrustPositif."
+        exit 1
+    fi
+
+    chmod 644 "$TMP_TRUSTPOSITIF"
+
+    cetak_pesan "$HIJAU" "Mengonversi data TrustPositif ke format RPZ..."
+    {
+        generate_rpz_header
+        awk -v cname="$CNAME_TRUSTPOSITIF" '
+        BEGIN {
+            skip_pattern = "^(;|!|##|#|0\\.0\\.0\\.0|[[:space:]]*$)"
+            invalid_chars = "[_:,?]"
+            dash_pattern = "(^-|-$|\\.-|-\\.)"
+            dot_pattern = "(\\.\\.|^\\.|\\.$)"
+        }
+        $0 ~ skip_pattern { next }
+        /[^\x00-\x7F]/ { next }
+        {
+            domain = $0
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", domain)
+            if (index(domain, "0.0.0.0") == 1) {
+                domain = substr(domain, 8)
+                gsub(/^[[:space:]]+/, "", domain)
+            }
+            if (index(domain, "www.") == 1) {
+                domain = substr(domain, 5)
+            }
+            gsub(invalid_chars, "", domain)
+            if (length(domain) == 0 || domain ~ dash_pattern || domain ~ dot_pattern) next
+            if (domain !~ /^[a-z0-9.-]+$/) next
+            if (index(domain, ".") == 0) next
+            parts = split(domain, p, ".")
+            if (parts < 2) next
+            print domain " 3600 IN CNAME " cname
+            print "*." domain " 3600 IN CNAME " cname
+        }' "$TMP_TRUSTPOSITIF"
+    } > "$FILE_TRUSTPOSITIF"
+
+    chmod 644 "$FILE_TRUSTPOSITIF"
+}
+
+# Fungsi untuk memeriksa file zona
+check_zone_files() {
+    cetak_pesan "$HIJAU" "Memeriksa file zona..."
+    if [ -f "$FILE_TRUSTPOSITIF" ]; then
+        if ! named-checkzone "$(basename "$FILE_TRUSTPOSITIF" .zones)" "$FILE_TRUSTPOSITIF" > /dev/null 2>&1; then
+            cetak_pesan "$MERAH" "[ERROR] Kesalahan dalam file zona $(basename "$FILE_TRUSTPOSITIF")."
+            exit 1
+        fi
+    else
+        cetak_pesan "$MERAH" "[ERROR] File $FILE_TRUSTPOSITIF tidak ditemukan."
+        exit 1
+    fi
+}
+
+# Fungsi utama
+main() {
+    check_dependencies
+    tampilkan_banner
+    generate_trustpositif_rpz
+    check_zone_files
+    cetak_pesan "$HIJAU" "[BERHASIL] File zona TrustPositif berhasil diperbarui dan diverifikasi."
+}
+
+main
