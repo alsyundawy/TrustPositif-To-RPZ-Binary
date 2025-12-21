@@ -3,7 +3,7 @@
 ;   RESPONSE POLICY ZONE (RPZ) - INTERNET SEHAT TRUSTPOSITIF INDONESIA
 ; ===========================================================================
 ; File generated automatically        : 21-Dec-25
-; Zone version / Serial               : 2025122129
+; Zone version / Serial               : 2025122148
 ; Author                              : Harry DS Alsyundawy
 ; Contact                             : alsyundawy@gmail.com
 ; WhatsApp/Telegram                   : +62 856-8515-212
@@ -21,7 +21,7 @@
 
 $TTL 300
 @               IN      SOA     dns.alsyundawy.net.id. hostmaster.alsyundawy.net.id. (
-                        2025122129 ; Serial YYYYMMDDnn
+                        2025122148 ; Serial YYYYMMDDnn
                         600         ; Refresh
                         300         ; Retry
                         43200       ; Expire
