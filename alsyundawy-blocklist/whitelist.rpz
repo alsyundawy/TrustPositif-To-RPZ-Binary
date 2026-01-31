@@ -1,8 +1,8 @@
 ;
 ;###########################################################################################
 ;
-; FILE GENERATED ON  : 29-Jan-26
-; VERSION            : 2026012913
+; FILE GENERATED ON  : 31-Jan-26
+; VERSION            : 2026013188
 ; SYNTAX             : RPZ
 ; AUTHORS            : HARRY DERTIN SUTISNA ALSYUNDAWY
 ; CONTACT            : alsyundawy@gmail.com, +628568515212 (WHATSAPP/TELEGRAM/CALL)
@@ -16,7 +16,7 @@ $TTL 300
 
 
 @ IN SOA dns.alsyundawy.net.id. hostmaster.alsyundawy.net.id. (
-    					2026012913 ; Serial
+    					2026013188 ; Serial
     					600         ; Refresh
     					300         ; Retry
     					43200       ; Expire
@@ -59,8 +59,6 @@ adwcleaner.toolslib.net              IN  CNAME  rpz-passthru.
 ae01.alicdn.com                      IN  CNAME  rpz-passthru.
 *.agoda.com                          IN  CNAME  rpz-passthru.
 agoda.com                            IN  CNAME  rpz-passthru.
-*.ajax.aspnetcdn.com                 IN  CNAME  rpz-passthru.
-ajax.aspnetcdn.com                   IN  CNAME  rpz-passthru.
 *.akadns.net                         IN  CNAME  rpz-passthru.
 akadns.net                           IN  CNAME  rpz-passthru.
 *.akamai.com                         IN  CNAME  rpz-passthru.
@@ -163,6 +161,8 @@ appleid.cdn-apple.com                IN  CNAME  rpz-passthru.
 arcus-uswest.amazon.com              IN  CNAME  rpz-passthru.
 *.asadcdn.com                        IN  CNAME  rpz-passthru.
 asadcdn.com                          IN  CNAME  rpz-passthru.
+*.aspnetcdn.com                      IN  CNAME  rpz-passthru.
+aspnetcdn.com                        IN  CNAME  rpz-passthru.
 *.assets-ads.3dtuning.com            IN  CNAME  rpz-passthru.
 assets-ads.3dtuning.com              IN  CNAME  rpz-passthru.
 *.assets.hulu.com                    IN  CNAME  rpz-passthru.
@@ -177,6 +177,8 @@ assets.pixel.prime.amazon.dev        IN  CNAME  rpz-passthru.
 assets.vsco.co                       IN  CNAME  rpz-passthru.
 *.assoc-redirect.amazon.com          IN  CNAME  rpz-passthru.
 assoc-redirect.amazon.com            IN  CNAME  rpz-passthru.
+*.asus.com                           IN  CNAME  rpz-passthru.
+asus.com                             IN  CNAME  rpz-passthru.
 *.at.adtech.redventures.io           IN  CNAME  rpz-passthru.
 at.adtech.redventures.io             IN  CNAME  rpz-passthru.
 *.atv-ps.amazon.com                  IN  CNAME  rpz-passthru.
@@ -225,6 +227,8 @@ blobs.officehome.msocdn.com          IN  CNAME  rpz-passthru.
 blocklist.addons.mozilla.org         IN  CNAME  rpz-passthru.
 *.b-msedge.net                       IN  CNAME  rpz-passthru.
 b-msedge.net                         IN  CNAME  rpz-passthru.
+*.booking.com                        IN  CNAME  rpz-passthru.
+booking.com                          IN  CNAME  rpz-passthru.
 *.bookmarks.sr.roku.com              IN  CNAME  rpz-passthru.
 bookmarks.sr.roku.com                IN  CNAME  rpz-passthru.
 *.bri.co.id                          IN  CNAME  rpz-passthru.
@@ -575,6 +579,8 @@ identity.osi.office.net              IN  CNAME  rpz-passthru.
 idmsa.apple.com                      IN  CNAME  rpz-passthru.
 *.ie.kis.scr.kaspersky-labs.com      IN  CNAME  rpz-passthru.
 ie.kis.scr.kaspersky-labs.com        IN  CNAME  rpz-passthru.
+*.imagekit.io                        IN  CNAME  rpz-passthru.
+imagekit.io                          IN  CNAME  rpz-passthru.
 *.imagesak.secureserver.net          IN  CNAME  rpz-passthru.
 imagesak.secureserver.net            IN  CNAME  rpz-passthru.
 *.imagizer.imageshack.com            IN  CNAME  rpz-passthru.
@@ -605,10 +611,6 @@ iris06-gold-ssl.gameloft.com         IN  CNAME  rpz-passthru.
 itop.mgapex.com                      IN  CNAME  rpz-passthru.
 *.itunes.com                         IN  CNAME  rpz-passthru.
 itunes.com                           IN  CNAME  rpz-passthru.
-*.i.vsco.co                          IN  CNAME  rpz-passthru.
-i.vsco.co                            IN  CNAME  rpz-passthru.
-*.i.ytimg.com                        IN  CNAME  rpz-passthru.
-i.ytimg.com                          IN  CNAME  rpz-passthru.
 *.jabarprov.go.id                    IN  CNAME  rpz-passthru.
 jabarprov.go.id                      IN  CNAME  rpz-passthru.
 *.jakarta.go.id                      IN  CNAME  rpz-passthru.
