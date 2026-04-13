@@ -649,3 +649,4 @@ ytimg.com
 zoho.com
 zone.msn.com
 zoom.us
+githubusercontent.com
