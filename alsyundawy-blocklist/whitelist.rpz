@@ -2,7 +2,7 @@
 ;###########################################################################################
 ;
 ; FILE GENERATED ON  : 14-Apr-26
-; VERSION            : 2026041424
+; VERSION            : 2026041470
 ; SYNTAX             : RPZ
 ; AUTHORS            : HARRY DERTIN SUTISNA ALSYUNDAWY
 ; CONTACT            : alsyundawy@gmail.com, +628568515212 (WHATSAPP/TELEGRAM/CALL)
@@ -16,7 +16,7 @@ $TTL 300
 
 
 @ IN SOA dns.alsyundawy.net.id. hostmaster.alsyundawy.net.id. (
-    					2026041424 ; Serial
+    					2026041470 ; Serial
     					600         ; Refresh
     					300         ; Retry
     					43200       ; Expire
@@ -537,6 +537,8 @@ geolocation.garmin.com               IN  CNAME  rpz-passthru.
 gha.ebay.com                         IN  CNAME  rpz-passthru.
 *.github.com                         IN  CNAME  rpz-passthru.
 github.com                           IN  CNAME  rpz-passthru.
+*.githubusercontent.com              IN  CNAME  rpz-passthru.
+githubusercontent.com                IN  CNAME  rpz-passthru.
 *.g.live.com                         IN  CNAME  rpz-passthru.
 g.live.com                           IN  CNAME  rpz-passthru.
 *.go.influencerlogic.com             IN  CNAME  rpz-passthru.
