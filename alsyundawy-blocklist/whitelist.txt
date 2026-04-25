@@ -650,3 +650,6 @@ zoho.com
 zone.msn.com
 zoom.us
 githubusercontent.com
+tokomekar.com
+xboxlive.com
+cloudflare-dns.com
