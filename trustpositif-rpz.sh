@@ -1,20 +1,29 @@
 #!/bin/bash
-
 # ============================================
 # Script: trustpositif-rpz.sh
-# Fungsi: 
-#   - Mengunduh daftar domain dari URL "https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
-#   - Mengonversi daftar domain tersebut menjadi format RPZ untuk digunakan dengan BIND DNS
-#   - Menghasilkan file zona DNS dengan konfigurasi SOA dan NS, serta menambahkan CNAME untuk setiap domain
-#   - Menggunakan curl untuk mengunduh file dengan melewati verifikasi SSL
-#   - Menghasilkan serial SOA secara acak dan menulisnya ke dalam file output
-#   - Melakukan restart layanan named dan reload konfigurasi DNS setelah file selesai dibuat
+# ============================================
+# Deskripsi:
+#   Script ini mengunduh daftar blokir TrustPositif, mengkonversinya ke format
+#   Response Policy Zone (RPZ) untuk BIND9, kemudian me-reload layanan named.
 #
-# Pembuat: Harry DS Alsyundawy
-# Tanggal Pembuatan: 14 Januari 2025
+# Fitur:
+#   - Download dengan timeout dan retry
+#   - Proses cepat menggunakan awk
+#   - Serial SOA otomatis (format YYYYMMDDHHMM)
+#   - Validasi file setelah download
+#   - Pengecekan direktori output
+#   - Logging yang lebih informatif
+#   - Error handling yang lebih baik
+#
+# Pembuat     		: Harry DS Alsyundawy
+# Tanggal Pembuatan	: 14 Januari 2025
+# Diperbaiki  		: 09 May 2026
 # ============================================
 
-# Warna ANSI
+set -o errexit  # Exit jika ada error
+set -o pipefail # Exit jika pipeline gagal
+
+# ================== WARNA ANSI ==================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -23,84 +32,111 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 
-# Header dengan warna
-echo -e "${BLUE}# ============================================"
-echo -e "# Script: ${CYAN}trustpositif-rpz.sh${RESET}"
-echo -e "# Fungsi:"
-echo -e "#   - ${GREEN}Mengunduh daftar domain dari URL \"https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt\"${RESET}"
-echo -e "#   - ${GREEN}Mengonversi daftar domain tersebut menjadi format RPZ untuk digunakan dengan BIND DNS${RESET}"
-echo -e "#   - ${GREEN}Menghasilkan file zona DNS dengan konfigurasi SOA dan NS, serta menambahkan CNAME untuk setiap domain${RESET}"
-echo -e "#   - ${GREEN}Menggunakan curl untuk mengunduh file dengan melewati verifikasi SSL${RESET}"
-echo -e "#   - ${GREEN}Menghasilkan serial SOA secara acak dan menulisnya ke dalam file output${RESET}"
-echo -e "#   - ${GREEN}Melakukan restart layanan named dan reload konfigurasi DNS setelah file selesai dibuat${RESET}"
-echo -e "#"
-echo -e "# Pembuat: ${MAGENTA}HARRY DS ALSYUNDAWY${RESET}"
-echo -e "# Tanggal Pembuatan: ${YELLOW}24 Januari 2025${RESET}"
-echo -e "# ============================================${RESET}"
-
-# Nama file input
-INPUT_FILE_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt"
+# ================== KONFIGURASI ==================
+INPUT_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/alsyundawy-blocklist/alsyundawy_blacklist.txt" #gunakan link lain apabila tidak ada
 OUTPUT_FILE="/etc/bind/zones/trustpositif.zones"
-TEMP_INPUT_FILE="/tmp/domains_isp.txt"
+TEMP_FILE="/tmp/domains_isp_$$.txt"          # Gunakan PID agar unik
+TTL="3600"
 
-# Fungsi untuk menghasilkan serial SOA
-generate_serial_soa() {
-    date +%y%m%d%H%M
+# ================== FUNGSI ==================
+
+print_header() {
+    echo -e "${BLUE}# ============================================"
+    echo -e "# Script: ${CYAN}trustpositif-rpz.sh${RESET}"
+    echo -e "# Deskripsi : Konversi TrustPositif ? RPZ BIND9"
+    echo -e "# Pembuat   : ${MAGENTA}HARRY DS ALSYUNDAWY${RESET}"
+    echo -e "# Dioptimasi: ${YELLOW}Grok${RESET}"
+    echo -e "# ============================================${RESET}"
 }
 
+generate_serial() {
+    date +%Y%m%d%H%M
+}
 
-# Mengunduh file input dengan curl dan bypass SSL
-echo -e "${CYAN}Mengunduh file dari URL:${RESET} ${YELLOW}$INPUT_FILE_URL${RESET}"
-curl -s --insecure -o "$TEMP_INPUT_FILE" "$INPUT_FILE_URL"
+check_directory() {
+    local dir
+    dir=$(dirname "$OUTPUT_FILE")
+    if [[ ! -d "$dir" ]]; then
+        echo -e "${YELLOW}Membuat direktori: ${dir}${RESET}"
+        mkdir -p "$dir" || { echo -e "${RED}Gagal membuat direktori ${dir}${RESET}"; exit 1; }
+    fi
+}
 
-# Cek jika file berhasil diunduh
-if [ ! -f "$TEMP_INPUT_FILE" ]; then
-    echo -e "${RED}Gagal mengunduh file input dari ${INPUT_FILE_URL}${RESET}"
+# ================== MAIN PROCESS ==================
+
+print_header
+
+echo -e "${CYAN}Mengunduh daftar domain TrustPositif...${RESET}"
+curl --fail --silent --show-error \
+     --max-time 60 \
+     --retry 3 \
+     --retry-delay 5 \
+     -o "$TEMP_FILE" "$INPUT_URL"
+
+if [[ ! -s "$TEMP_FILE" ]]; then
+    echo -e "${RED}Gagal mengunduh file atau file kosong.${RESET}"
+    rm -f "$TEMP_FILE"
     exit 1
 fi
 
-# Generate serial SOA random
-SERIAL_SOA=$(generate_serial_soa)
-CURRENT_TIME=$(date)
+DOMAIN_COUNT=$(wc -l < "$TEMP_FILE")
+echo -e "${GREEN}Berhasil mengunduh ${YELLOW}$DOMAIN_COUNT${GREEN} domain.${RESET}"
 
-# Menulis header ke file output
-echo -e "${CYAN}Menulis konfigurasi zona ke file output:${RESET} ${YELLOW}$OUTPUT_FILE${RESET}"
+check_directory
+
+SERIAL=$(generate_serial)
+CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+
+echo -e "${CYAN}Membuat file RPZ: ${YELLOW}$OUTPUT_FILE${RESET}"
+
 {
-    echo "; File ini dihasilkan pada: $CURRENT_TIME"
-    echo "; Authors: Harry DS Alsyundawy"
-    echo ""
-    echo "\$TTL 300"
-    echo "@ IN SOA localhost. root.localhost. ("
-    echo "    $SERIAL_SOA ; Serial"
-    echo "    10800      ; Refresh"
-    echo "    120        ; Retry"
-    echo "    604800     ; Expire"
-    echo "    3600       ; Minimum TTL"
-    echo ")"
-    echo "@ IN NS lamanlabuh.resolver.id."
+    cat <<EOF
+; =============================================
+; File RPZ TrustPositif
+; Dihasilkan otomatis pada : $CURRENT_TIME
+; Jumlah domain            : $DOMAIN_COUNT
+; =============================================
+
+\$TTL $TTL
+@ IN SOA localhost. root.localhost. (
+    $SERIAL     ; Serial
+    10800       ; Refresh
+    120         ; Retry
+    604800      ; Expire
+    3600        ; Minimum TTL
+)
+@ IN NS lamanlabuh.resolver.id.
+
+EOF
+
+    # Proses domain (sangat cepat)
+    awk -v ttl="$TTL" '
+        NF > 0 && !/^#/ && !/^[[:space:]]*$/ {
+            gsub(/\r/, "");  # hapus CR jika ada
+            print $0, ttl, "IN CNAME lamanlabuh.resolver.id."
+            print "*." $0, ttl, "IN CNAME lamanlabuh.resolver.id."
+        }
+    ' "$TEMP_FILE"
+
 } > "$OUTPUT_FILE"
 
-# Menggunakan awk untuk membaca file input dan menulis ke file output
-awk '
-{
-    print $0 "  3600 IN CNAME lamanlabuh.resolver.id."
-    print "*." $0 "  3600 IN CNAME lamanlabuh.resolver.id."
-}' "$TEMP_INPUT_FILE" >> "$OUTPUT_FILE"
+# Bersihkan temporary file
+rm -f "$TEMP_FILE"
 
-# Menghapus file sementara
-rm -f "$TEMP_INPUT_FILE"
-echo -e "${GREEN}Konversi selesai. File output disimpan sebagai:${RESET} ${YELLOW}$OUTPUT_FILE${RESET}"
+echo -e "${GREEN}Konversi selesai. Total ${YELLOW}$((DOMAIN_COUNT * 2))${GREEN} record RPZ dibuat.${RESET}"
 
-# Restart named dan reload konfigurasi
-echo -e "${CYAN}Restarting named service and reloading DNS configuration...${RESET}"
-systemctl restart named
-rndc reload
+# Reload BIND
+echo -e "${CYAN}Melakukan reload konfigurasi BIND...${RESET}"
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Layanan named berhasil direstart dan konfigurasi DNS berhasil dimuat ulang.${RESET}"
+if systemctl restart named; then
+    if rndc reload >/dev/null 2>&1; then
+        echo -e "${GREEN}? BIND berhasil direstart dan RPZ berhasil dimuat ulang.${RESET}"
+    else
+        echo -e "${YELLOW}? named restart berhasil, tapi rndc reload gagal.${RESET}"
+    fi
 else
-    echo -e "${RED}Gagal merestart layanan named atau memuat ulang konfigurasi DNS.${RESET}"
+    echo -e "${RED}? Gagal merestart layanan named.${RESET}"
     exit 1
 fi
 
-echo -e "${MAGENTA}Script selesai dijalankan.${RESET}"
+echo -e "${MAGENTA}Script selesai dijalankan dengan sukses.${RESET}"

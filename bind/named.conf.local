@@ -6,9 +6,10 @@
 // organization
 //include "/etc/bind/zones.rfc1918";
 
-zone "trustpositif" IN {
+
+zone "whitelist" IN {
       type master;
-      file "/etc/bind/zones/trustpositif.zones";
+      file "/etc/bind/zones/whitelist.zones";
       allow-query {any;};
       allow-update {none;};
 };
@@ -20,9 +21,9 @@ zone "safesearch" IN {
       allow-update {none;};
 };
 
-zone "whitelist" IN {
+zone "trustpositif" IN {
       type master;
-      file "/etc/bind/zones/whitelist.zones";
+      file "/etc/bind/zones/trustpositif.zones";
       allow-query {any;};
       allow-update {none;};
 };

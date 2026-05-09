@@ -31,22 +31,25 @@ options {
     // Pengaturan cache
     max-cache-size 1G;       // Ukuran maksimum cache adalah 1GB
     max-cache-ttl 3600;      // TTL (Time to Live) maksimum untuk record cache adalah 3600 detik (1 jam)
-    max-ncache-ttl 3600;     // TTL maksimum untuk respons negatif cache adalah 3600 detik (1 jam)
+    max-ncache-ttl 720;     // TTL maksimum untuk respons negatif cache adalah 720 detik (1 jam)
 
     // Membatasi akses query dan rekursi hanya untuk jaringan yang didefinisikan di `localnet`
     allow-query { localnet; };        // Hanya izinkan query dari `localnet`
-    allow-query-on { localnet; };     // Hanya izinkan query pada antarmuka jaringan `localnet`
     allow-recursion { localnet; };    // Hanya izinkan rekursi untuk `localnet`
-    allow-recursion-on { localnet; }; // Hanya izinkan rekursi pada antarmuka jaringan `localnet`
     allow-query-cache { localnet; };  // Hanya izinkan query cache untuk `localnet`
-    allow-query-cache-on { localnet; }; // Hanya izinkan query cache pada antarmuka jaringan `localnet`
+
 
     // Response Policy Zones (RPZ) untuk menerapkan kebijakan pada respons DNS
     response-policy {
-        zone "whitelist" policy passthru; // Melewati domain yang ada di whitelist
-        zone "safesearch" policy given;   // Menerapkan kebijakan SafeSearch
-        zone "trustpositif" policy given; // Menerapkan kebijakan TrustPositif
-    };
+        zone "whitelist"    policy passthru;
+        zone "safesearch"   policy given;
+        zone "trustpositif" policy given;
+    } 
+	recursive-only yes
+    qname-wait-recurse no
+    nsip-wait-recurse no
+    break-dnssec yes
+    max-policy-ttl 60;
 
     // Pengaturan keamanan
     version "not currently available"; // Menyembunyikan versi BIND untuk keamanan
@@ -54,20 +57,22 @@ options {
     minimal-responses yes;             // Mengurangi ukuran respons DNS untuk meningkatkan performa
     auth-nxdomain no;                  // Menonaktifkan respons otoritatif untuk domain yang tidak ada
     request-ixfr yes;                  // Mengizinkan transfer zona inkremental
+    notify no;                         // Rekursif tidak perlu kirim NOTIFY
+    minimal-any yes;                   // RFC 8482 - kurangi amplification ANY query
 
     // Rate limiting untuk mencegah serangan DDoS
     rate-limit {
         responses-per-second 64;       // Batas respons per detik
         all-per-second 128;            // Batas total respons per detik
         window 3;                      // Jendela waktu untuk rate limiting
-        max-table-size 4096;           // Ukuran maksimum tabel rate limiting
+        max-table-size 8192;           // Ukuran maksimum tabel rate limiting
         min-table-size 1024;           // Ukuran minimum tabel rate limiting
-        ipv4-prefix-length 32;         // Panjang prefiks IPv4 untuk rate limiting
-        ipv6-prefix-length 64;         // Panjang prefiks IPv6 untuk rate limiting
+        ipv4-prefix-length 24;         // Panjang prefiks IPv4 untuk rate limiting
+        ipv6-prefix-length 56;         // Panjang prefiks IPv6 untuk rate limiting
         slip 2;                        // Jumlah respons yang di-slip (dilewati) saat melebihi batas
         errors-per-second 10;          // Batas error per detik
         nxdomains-per-second 80;       // Batas respons NXDOMAIN (domain tidak ada) per detik
-        qps-scale 300;                 // Skala QPS (Queries Per Second)
+        qps-scale 1500;                 // Skala QPS (Queries Per Second)
         log-only no;                   // Tidak hanya mencatat, tetapi juga menerapkan batasan
     };
 
