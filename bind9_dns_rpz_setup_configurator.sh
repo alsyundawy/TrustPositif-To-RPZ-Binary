@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
 # ============================================================
-# Script     : install_bind9_rpz.sh
-# Deskripsi  : Menginstal dan mengonfigurasi BIND9 DNS server
-#              dengan konfigurasi RPZ (Response Policy Zone).
-#              Script ini mengunduh file konfigurasi BIND9 dan
-#              binary RPZ dari repositori GitHub, kemudian
-#              mengonfigurasi cron job untuk pembaruan berkala.
-# Pembuat    : Alsyundawy
-# Tanggal    : 24 Januari 2025
-# Diperbaiki : 09 May 2026
-# Versi      : 2.0
-# Lisensi    : MIT
+# SCRIPT     : INSTALL_BIND9_RPZ_SETUP_CONFIGURATOR.SH
+# DESKRIPSI  : MENGINSTAL DAN MENGONFIGURASI BIND9 DNS SERVER
+#              DENGAN KONFIGURASI RPZ (RESPONSE POLICY ZONE).
+#              SCRIPT INI MENGUNDUH FILE KONFIGURASI BIND9 DAN
+#              BINARY RPZ DARI REPOSITORI GITHUB, KEMUDIAN
+#              MENGONFIGURASI CRON JOB UNTUK PEMBARUAN BERKALA.
+# PEMBUAT    : HARRY DERTIN SUTISNA ALSYUNDAWY
+# TANGGAL    : 24 JANUARI 2025
+# DIPERBAIKI : 09 MAY 2026
+# VERSI      : 2.0
+# LISENSI    : MIT
 # ============================================================
 
 # [BARU] set -euo pipefail:
@@ -52,8 +52,8 @@ readonly RPZ_URL="https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/r
 readonly -a CONFIG_FILES=(
     "named.conf.local"
     "named.conf.options"
-    "zones/safesearch.zones"
-    "zones/whitelist.zones"
+    "zones/alsyundawy_safesearch.zones"
+    "zones/alsyundawy_whitelist.zones"
 )
 
 # ============================================================

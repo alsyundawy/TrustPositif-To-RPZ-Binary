@@ -9,21 +9,21 @@
 
 zone "whitelist" IN {
       type master;
-      file "/etc/bind/zones/whitelist.zones";
+      file "/etc/bind/zones/alsyundawy_whitelist.zones";
       allow-query {any;};
       allow-update {none;};
 };
 
 zone "safesearch" IN {
       type master;
-      file "/etc/bind/zones/safesearch.zones";
+      file "/etc/bind/zones/alsyundawy_safesearch.zones";
       allow-query {any;};
       allow-update {none;};
 };
 
 zone "trustpositif" IN {
       type master;
-      file "/etc/bind/zones/trustpositif.zones";
+      file "/etc/bind/zones/alsyundawy_trustpositif.zones";
       allow-query {any;};
       allow-update {none;};
 };

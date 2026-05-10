@@ -1,23 +1,23 @@
 #!/bin/bash
 # ============================================
-# Script: trustpositif-rpz.sh
+# SCRIPT: TRUSTPOSITIF-RPZ.SH
 # ============================================
-# Deskripsi:
-#   Script ini mengunduh daftar blokir TrustPositif, mengkonversinya ke format
-#   Response Policy Zone (RPZ) untuk BIND9, kemudian me-reload layanan named.
+# DESKRIPSI:
+#   SCRIPT INI MENGUNDUH DAFTAR BLOKIR TRUSTPOSITIF, MENGKONVERSINYA KE FORMAT
+#   RESPONSE POLICY ZONE (RPZ) UNTUK BIND9, KEMUDIAN ME-RELOAD LAYANAN NAMED.
 #
-# Fitur:
-#   - Download dengan timeout dan retry
-#   - Proses cepat menggunakan awk
-#   - Serial SOA otomatis (format YYYYMMDDHHMM)
-#   - Validasi file setelah download
-#   - Pengecekan direktori output
-#   - Logging yang lebih informatif
-#   - Error handling yang lebih baik
+# FITUR:
+#   - DOWNLOAD DENGAN TIMEOUT DAN RETRY
+#   - PROSES CEPAT MENGGUNAKAN AWK
+#   - SERIAL SOA OTOMATIS (FORMAT YYYYMMDDHHMM)
+#   - VALIDASI FILE SETELAH DOWNLOAD
+#   - PENGECEKAN DIREKTORI OUTPUT
+#   - LOGGING YANG LEBIH INFORMATIF
+#   - ERROR HANDLING YANG LEBIH BAIK
 #
-# Pembuat     		: Harry DS Alsyundawy
-# Tanggal Pembuatan	: 14 Januari 2025
-# Diperbaiki  		: 09 May 2026
+# PEMBUAT     		: HARRY DS ALSYUNDAWY
+# TANGGAL PEMBUATAN	: 14 JANUARI 2025
+# DIPERBAIKI  		: 09 MAY 2026
 # ============================================
 
 set -o errexit  # Exit jika ada error
