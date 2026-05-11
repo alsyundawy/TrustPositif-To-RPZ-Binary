@@ -13,8 +13,8 @@
 # Homepage   : https://alsyundawy.com
 # Repositori : https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary
 # Dibuat     : 24 Januari 2025
-# Diperbarui : 09 Mei 2026
-# Versi      : 2.0
+# Diperbarui : 11 Mei 2026
+# Versi      : 2.1
 # Lisensi    : MIT
 # ============================================================
 
@@ -270,8 +270,8 @@ show_banner() {
     echo "            +628568515212 (WhatsApp/Telegram/Call)"
     echo "  HOMEPAGE: https://alsyundawy.com"
     echo "------------------------------------------------------------"
-    echo "  VERSION : 2.0"
-    echo "  UPDATED : 09 May 2026"
+    echo "  VERSION : 2.1"
+    echo "  UPDATED : 11 May 2026"
     echo "  CREATED : 24 Januari 2025"
     echo "  TARGET  : BIND 9.18 ke atas (Debian >=12, Ubuntu >=22.04)"
     echo "------------------------------------------------------------"
@@ -473,6 +473,8 @@ main() {
     info "Tips pengujian DNS dengan nslookup:"
     info "  - Uji dari server ini:  nslookup google.com 127.0.0.1"
     info "  - Uji dari klien    :  nslookup google.com <alamat IP server ini>"
+    info "  - Uji dari server ini:  nslookup pornhub.com 127.0.0.1"
+    info "  - Uji dari klien    :  nslookup pornhub.com <alamat IP server ini>"
     info "  Jika RPZ memblokir domain tertentu, respon akan berbeda."
     info "  Pastikan klien menggunakan DNS server ini agar RPZ aktif."
 }

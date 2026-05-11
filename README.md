@@ -2,7 +2,7 @@
 
 
 **TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). 
-Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 13 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
+Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 12 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
 
 
 [![Latest Version](https://img.shields.io/github/v/release/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/releases)
@@ -22,7 +22,7 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 **Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Di Gunakan Oleh Internet Service Provider (ISP) Di Indonesia**
 
 
-## minimum Debian 13 / Ubuntu 22.04 , Install ISC Bind9 
+## minimum Debian 12 / Ubuntu 22.04 , Install ISC Bind9 
 
 ````
 
@@ -38,11 +38,11 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 #              Dirancang untuk BIND versi 9.18 ke atas.
 # Penulis    : Harry Dertin Sutisna Alsyundawy
 # Kontak     : alsyundawy@gmail.com, +628568515212 (WhatsApp/Telegram/Call)
-# Homepage   : https://github.com/alsyundawy
+# Homepage   : https://alsyundawy.com
 # Repositori : https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary
 # Dibuat     : 24 Januari 2025
-# Diperbarui : 09 Mei 2026
-# Versi      : 2.0
+# Diperbarui : 11 Mei 2026
+# Versi      : 2.1
 # Lisensi    : MIT
 # ============================================================
 
@@ -296,10 +296,10 @@ show_banner() {
     echo "------------------------------------------------------------"
     echo "  CONTACT : alsyundawy@gmail.com"
     echo "            +628568515212 (WhatsApp/Telegram/Call)"
-    echo "  HOMEPAGE: https://github.com/alsyundawy"
+    echo "  HOMEPAGE: https://alsyundawy.com"
     echo "------------------------------------------------------------"
-    echo "  VERSION : 2.0"
-    echo "  UPDATED : 09 May 2026"
+    echo "  VERSION : 2.1"
+    echo "  UPDATED : 11 May 2026"
     echo "  CREATED : 24 Januari 2025"
     echo "  TARGET  : BIND 9.18 ke atas (Debian >=12, Ubuntu >=22.04)"
     echo "------------------------------------------------------------"
@@ -501,6 +501,8 @@ main() {
     info "Tips pengujian DNS dengan nslookup:"
     info "  - Uji dari server ini:  nslookup google.com 127.0.0.1"
     info "  - Uji dari klien    :  nslookup google.com <alamat IP server ini>"
+    info "  - Uji dari server ini:  nslookup pornhub.com 127.0.0.1"
+    info "  - Uji dari klien    :  nslookup pornhub.com <alamat IP server ini>"
     info "  Jika RPZ memblokir domain tertentu, respon akan berbeda."
     info "  Pastikan klien menggunakan DNS server ini agar RPZ aktif."
 }
@@ -508,6 +510,57 @@ main() {
 main "$@"
 
 ````
+
+
+## Cara Install BIND Versi 9.20 / 9.21
+
+Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di repositori bawaan distribusi, Anda dapat menggunakan sumber paket tambahan berikut.
+
+### Ubuntu (22.04 / 24.04) – Menggunakan PPA Resmi ISC
+
+ISC menyediakan PPA (Personal Package Archive) resmi untuk Ubuntu yang berisi BIND versi terbaru:
+- **Stabil (9.20):** `ppa:isc/bind`
+- **Pengembangan (9.21):** `ppa:isc/bind-dev`
+
+```bash
+# Tambahkan PPA (pilih salah satu)
+sudo add-apt-repository ppa:isc/bind        # Versi stabil 9.20
+# sudo add-apt-repository ppa:isc/bind-dev  # Versi pengembangan 9.21
+
+# Perbarui daftar paket
+sudo apt update
+
+# Install BIND beserta utilitas pendukung
+sudo apt install bind9 bind9-dnsutils bind9-utils
+```
+
+### Debian (12 / 13) – Menggunakan Repositori deb.sury.org
+
+Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh **Ondrej Surý** di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
+
+```bash
+# Install dependensi
+sudo apt update
+sudo apt install -y lsb-release ca-certificates curl
+
+# Unduh dan pasang kunci GPG repositori
+sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb \
+  https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+
+# Tambahkan repositori BIND (pilih salah satu)
+# Versi stabil 9.20:
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/bind/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/bind.list'
+
+# Versi pengembangan 9.21:
+# sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/bind-dev/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/bind-dev.list'
+
+# Perbarui daftar paket dan install
+sudo apt update
+sudo apt install bind9 bind9-dnsutils bind9-utils
+```
+
+> **Catatan:** Versi 9.21 adalah cabang pengembangan (*development*) dan ditujukan untuk pengujian, **bukan** untuk lingkungan produksi. Untuk server produksi, gunakan versi stabil 9.20.
 
 ## Setup Crontab Auto Update Database Setiap 12 Jam
 
