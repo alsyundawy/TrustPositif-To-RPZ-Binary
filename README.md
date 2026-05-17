@@ -1,9 +1,7 @@
-# TrustPositif To RPZ Binary
+# 🛡️ TrustPositif To RPZ Binary By Harry Dertin Sutisna Alsyundawy
 
-
-**TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). 
+**TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). ✨
 Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 12 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
-
 
 [![Latest Version](https://img.shields.io/github/v/release/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/releases)
 [![Maintenance Status](https://img.shields.io/maintenance/yes/9999)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/)
@@ -16,32 +14,49 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 [![GitHub Forks](https://img.shields.io/github/forks/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/network/members)
 [![GitHub Contributors](https://img.shields.io/github/contributors/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/graphs/contributors)
 
-## Stargazers over time
+## 📈 Stargazers over time
+
 [![Stargazers over time](https://starchart.cc/alsyundawy/TrustPositif-To-RPZ-Binary.svg?variant=adaptive)](https://starchart.cc/alsyundawy/TrustPositif-To-RPZ-Binary)
 
-**Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Di Gunakan Oleh Internet Service Provider (ISP) Di Indonesia**
+**Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Di Gunakan Oleh Internet Service Provider (ISP) Di Indonesia** 🌐
 
+## ⚡ Script untuk Auto Install & Konfig, minimum Debian 12 / Ubuntu 22.04 , Install ISC Bind9
 
-## minimum Debian 12 / Ubuntu 22.04 , Install ISC Bind9 
+Anda dapat mengunduh dan mengeksekusi skrip instalasi secara otomatis dengan menggunakan salah satu perintah di bawah ini (silakan pilih salah satu, `curl` atau `wget`).
 
-````
+**Menggunakan `curl` (Rekomendasi):** 📥
 
+```bash
+curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
+```
+
+**Menggunakan `wget` (Alternative):** 📥
+
+```bash
+wget -qO- https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
+```
+
+**Source Code dari file bind9_dns_rpz_setup_configurator.sh:** 💻
+
+```bash
 #!/usr/bin/env bash
 
 # ============================================================
 # Nama       : INSTALL_BIND9_RPZ_SETUP_CONFIGURATOR.SH
-# Deskripsi  : Instalasi dan konfigurasi BIND9 sebagai DNS server
-#              yang dilengkapi Response Policy Zone (RPZ).
-#              Skrip mengunduh berkas konfigurasi dan binary RPZ
-#              dari repositori, lalu menyiapkan cron job agar
-#              pembaruan berjalan otomatis setiap 12 jam.
-#              Dirancang untuk BIND versi 9.18 ke atas.
+# Deskripsi  : Skrip otomasi komprehensif untuk instalasi dan konfigurasi 
+#              BIND9 DNS Server terintegrasi dengan Response Policy Zone (RPZ).
+#              Fitur utama meliputi:
+#              - Deteksi OS (Ubuntu 22.04+ / Debian 12+) & tipe Virtualisasi.
+#              - Penanganan otomatis konflik Port 53 & penyesuaian resolv.conf.
+#              - Pilihan multi-sumber sinkronisasi database RPZ (GitHub / Komdigi).
+#              - Unduhan konfigurasi, binary RPZ, dan penjadwalan pembaruan (12 Jam).
+#              - Pemuatan ulang layanan dinamis dan perbaikan struktur jaringan dasar.
 # Penulis    : Harry Dertin Sutisna Alsyundawy
 # Kontak     : alsyundawy@gmail.com, +628568515212 (WhatsApp/Telegram/Call)
 # Homepage   : https://alsyundawy.com
 # Repositori : https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary
 # Dibuat     : 24 Januari 2025
-# Diperbarui : 17 Mei 2026
+# Diperbarui : 18 Mei 2026
 # Versi      : 2.2
 # Lisensi    : MIT
 # ============================================================
@@ -51,6 +66,9 @@ Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux
 #   -u          : cegah penggunaan variabel yang belum diatur
 #   -o pipefail : pipeline gagal jika salah satu bagian gagal
 set -euo pipefail
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------------
 # Variabel warna untuk output terminal
@@ -101,11 +119,7 @@ error_exit() {
     exit 1
 }
 
-check_status() {
-    if [ "${PIPESTATUS[0]:-$?}" -ne 0 ]; then
-        error_exit "$1"
-    fi
-}
+# check_status tidak digunakan secara aktif; dihapus untuk kebersihan kode.
 
 check_url() {
     local url="$1"
@@ -152,7 +166,7 @@ ensure_command() {
     fi
 
     warn "Perintah '${cmd}' tidak ditemukan. Akan diinstal dari paket '${pkg}'..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${pkg}" || \
+    apt-get install -y -qq "${pkg}" || \
         error_exit "Gagal menginstal paket '${pkg}' yang menyediakan '${cmd}'."
     success "Paket '${pkg}' berhasil diinstal."
 }
@@ -206,7 +220,7 @@ check_os_version() {
             fi
             ;;
         *)
-            error_exit "Distribusi '${ID}' tidak didukung. Skrip ini hanya mendukung minimal Ubuntu 22.04 dan Debian 12."
+            error_exit "Distribusi '${ID}' tidak didukung. Skrip ini hanya mendukung minimal Ubuntu 22.04 (Jammy) dan Debian 12 (Bookworm)."
             ;;
     esac
 }
@@ -228,21 +242,23 @@ detect_virtualization() {
         local product
         product=$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)
         case "${product,,}" in
-            *vmware*) virt="vmware" ;;
-            *kvm*|*qemu*) virt="kvm" ;;
-            *proxmox*) virt="kvm" ;;
+            *vmware*)         virt="vmware" ;;
+            *kvm*|*qemu*)    virt="kvm" ;;
+            *proxmox*)        virt="kvm" ;;
         esac
     fi
 
     if [ -z "${virt}" ]; then
         # Fallback: cek dengan lscpu (mungkin tidak ada)
         if command -v lscpu &>/dev/null; then
-            if lscpu | grep -qi "hypervisor vendor"; then
+            local lscpu_out
+            lscpu_out=$(lscpu 2>/dev/null || true)
+            if echo "${lscpu_out}" | grep -qi "hypervisor vendor"; then
                 local hv
-                hv=$(lscpu | grep "Hypervisor vendor" | awk -F: '{print $2}' | xargs)
+                hv=$(echo "${lscpu_out}" | grep -i "Hypervisor vendor" | awk -F: '{print $2}' | xargs)
                 case "${hv,,}" in
                     *vmware*) virt="vmware" ;;
-                    *kvm*) virt="kvm" ;;
+                    *kvm*)    virt="kvm" ;;
                 esac
             fi
         fi
@@ -297,7 +313,7 @@ check_root() {
     if [ "${EUID}" -ne 0 ]; then
         warn "Skrip ini memerlukan hak akses root. Meminta elevasi..."
         exec sudo bash "$0" "$@"
-        exit 1
+        # exec mengganti proses; baris setelah ini tidak akan pernah tercapai
     fi
 }
 
@@ -313,6 +329,12 @@ show_banner() {
     echo "============================================================"
     echo "  PROGRAM : BIND9 DNS Server + RPZ Installer & Configurator"
     echo "  SCRIPT  : ${script_name}"
+    echo "  DESC    : Skrip otomasi instalasi & konfigurasi BIND9"
+    echo "            terintegrasi RPZ dengan dukungan multi-sumber,"
+    echo "            penanganan port 53, setup resolv.conf,"
+    echo "            serta auto-reload layanan,"
+    echo "            deteksi OS (Ubuntu 22.04+ / Debian 12+),"
+    echo "            dan tipe Virtualisasi."
     echo "------------------------------------------------------------"
     echo "  AUTHOR  : Harry Dertin Sutisna Alsyundawy"
     echo "  LICENSE : MIT License (Free & Open Source)"
@@ -323,7 +345,7 @@ show_banner() {
     echo "  HOMEPAGE: https://alsyundawy.com"
     echo "------------------------------------------------------------"
     echo "  VERSION : 2.2"
-    echo "  UPDATED : 17 May 2026"
+    echo "  UPDATED : 18 May 2026"
     echo "  CREATED : 24 Januari 2025"
     echo "  TARGET  : BIND 9.18 ke atas (Debian >=12, Ubuntu >=22.04)"
     echo "------------------------------------------------------------"
@@ -466,6 +488,29 @@ setup_cron() {
     fi
 }
 
+configure_resolv_conf() {
+    info "Mengonfigurasi /etc/resolv.conf untuk menggunakan 127.0.0.1 di urutan pertama..."
+    if [ -L /etc/resolv.conf ]; then
+        warn "/etc/resolv.conf adalah symlink, menggantinya dengan file reguler..."
+        local real_file
+        real_file=$(readlink -f /etc/resolv.conf)
+        rm -f /etc/resolv.conf
+        if [ -f "${real_file}" ]; then
+            cp "${real_file}" /etc/resolv.conf
+        else
+            touch /etc/resolv.conf
+        fi
+    fi
+    sed -i '/^[[:space:]]*nameserver[[:space:]]*127\.0\.0\.1[[:space:]]*$/d' /etc/resolv.conf 2>/dev/null || true
+    local tmp_resolv
+    tmp_resolv=$(mktemp)
+    echo "nameserver 127.0.0.1" > "${tmp_resolv}"
+    cat /etc/resolv.conf >> "${tmp_resolv}" 2>/dev/null || true
+    cat "${tmp_resolv}" > /etc/resolv.conf
+    rm -f "${tmp_resolv}"
+    success "nameserver 127.0.0.1 berhasil ditambahkan di awal baris /etc/resolv.conf."
+}
+
 run_rpz() {
     info "Menjalankan RPZ untuk sinkronisasi awal..."
     "${RPZ_BINARY}" || error_exit "Gagal menjalankan binary RPZ: ${RPZ_BINARY}"
@@ -483,10 +528,10 @@ main() {
     show_banner
     choose_rpz_source
 
-    if ! command -v apt-get &> /dev/null; then
+    if ! command -v apt-get &>/dev/null; then
         error_exit "apt-get tidak ditemukan. Skrip hanya bekerja pada distribusi Debian/Ubuntu."
     fi
-	
+
     check_os_version
     fix_hostname
     update_system
@@ -501,6 +546,7 @@ main() {
     restart_bind9
     setup_rpz_binary
     setup_cron
+    configure_resolv_conf
 
     echo ""
     success "============================================================"
@@ -516,6 +562,10 @@ main() {
     case "${answer:0:1}" in
         y|Y|"")
             run_rpz
+            info "Memuat ulang layanan BIND9..."
+            rndc reload || warn "rndc reload gagal atau belum dikonfigurasi."
+            systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            success "Layanan BIND9 berhasil dimuat ulang."
             ;;
         *)
             info "RPZ tidak dijalankan. Anda dapat menjalankannya nanti dengan perintah:"
@@ -534,15 +584,13 @@ main() {
 }
 
 main "$@"
+```
 
-````
-
-
-# Cara Install BIND Versi 9.20 / 9.21
+## ⚙️ Cara Install BIND Versi 9.20 / 9.21
 
 Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di repositori bawaan distribusi, Anda dapat menggunakan sumber paket tambahan berikut.
 
-## Ubuntu (22.04 / 24.04) — Menggunakan PPA Resmi ISC
+### 🟠 Ubuntu (22.04 / 24.04) — Menggunakan PPA Resmi ISC
 
 ISC menyediakan PPA (Personal Package Archive) resmi untuk Ubuntu yang berisi BIND versi terbaru:
 
@@ -561,7 +609,7 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-## Debian (12 / 13) — Menggunakan Repositori deb.sury.org
+### 🔴 Debian (12 / 13) — Menggunakan Repositori deb.sury.org
 
 Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh Ondrej Surý di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
 
@@ -588,50 +636,25 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-## Catatan
+### 📌 Catatan
 
 - Versi 9.21 adalah cabang pengembangan (development) dan ditujukan untuk pengujian, bukan untuk lingkungan produksi.
 - Untuk server produksi, gunakan versi stabil 9.20.
 
-## Setup Crontab Auto Update Database Setiap 12 Jam
+### ⏰ Setup Crontab Auto Update Database Setiap 12 Jam
 
-````
+```bash
 
 crontab -e
 
 * */12 * * * /usr/local/bin/rpz > /dev/null 2>&1
+```
 
-````
+![image](https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c)
 
-## Script untuk Auto Install & Konfig
+## 🔒 Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
 
-Anda dapat mengunduh dan mengeksekusi skrip instalasi secara otomatis dengan menggunakan salah satu perintah di bawah ini (silakan pilih salah satu, `curl` atau `wget`).
-
-**Menggunakan `curl` (Rekomendasi):**
-
-````
-
-curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
-
-````
-
-**Menggunakan `wget` (Altenative):**
-
-````
-
-wget -qO- https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
-
-````
-
-
-
-<img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
--
-
-
-# Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
-
-````
+```conf
 
 // Definisi ACL (Access Control List) untuk jaringan yang diizinkan
 acl localnet {
@@ -667,13 +690,11 @@ options {
     allow-query { localnet; };        // Hanya izinkan query dari `localnet`
     allow-recursion { localnet; };    // Hanya izinkan rekursi untuk `localnet`
     allow-query-cache { localnet; };  // Hanya izinkan query cache untuk `localnet`
+```
 
-````
+## 🛠️ Troubleshooting DNS Dengan Perintah Dasar NSLOOKUP (Support Semua Operating System)
 
-# Troubleshooting DNS Dengan Perindah Dasar NSLOOKUP (Support Semua Operations System)
-
-````
-
+```bash
 #BASIC PERINTAH DASAR NSLOOKUP DOMAIN DAN IP (WAJIB DIKETAHUI UNTUK TROBLESHOTING DNS!)
 
 nslookup domain/ip ipmesindns
@@ -702,35 +723,26 @@ nslookup -query=soa example.com
 
 #Perintah NSLOOKUP apabila DNS Server Menggunakan Port Lain Misal Port 5353
 nslookup -port=5353 example.com
+```
 
-````
-
-
-# Konsep Dasar DNS Master Dan Slave
+## 🏗️ Konsep Dasar DNS Master Dan Slave
 
 ![image](https://github.com/user-attachments/assets/3dc63900-13c3-4bf3-a1bc-0cf97cb39d88)
--
+
 ![image](https://github.com/user-attachments/assets/46a2e24e-75f0-4053-b486-0b9ac9ef6200)
 
+**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui <https://www.paypal.me/alsyundawy>. Terima kasih atas dukungannya!** ☕
 
+**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui QRIS. Terima kasih atas dukungannya!** ☕
 
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui https://www.paypal.me/alsyundawy. Terima kasih atas dukungannya!**
+![image](https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df)
 
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui QRIS. Terima kasih atas dukungannya!**
+**Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda** 📝
 
-<img width="508" height="574" alt="image" src="https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df" />
+**Jangan semangat tetap putus asa, tetaplah mengeluh meski gak ada yang pedulikan. Ketika yang lain bisa kenapa harus saya, ketika yang lain tidak bisa apalagi saya. Tetaplah hidup meski tidak berguna, maju tak gentar membela yang bayar !!!! Yoi, ya begitulah .....** 🤣
 
+### ✨ Anda Memang Luar Biasa | Harry DS Alsyundawy | Kaum Rebahan Garis Keras & Militan ✨
 
-**Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda**
-
-
-**Jangan semangat tetap putus asa, tetaplah mengeluh meski gak ada yang pedulikan. Ketika yang lain bisa kenapa harus saya, ketika yang lain tidak bisa apalagi saya. Tetaplah hidup meski tidak berguna, maju tak gentar membela yang bayar !!!! Yoi, ya begitulah .....**
-
-### Anda Memang Luar Biasa | Harry DS Alsyundawy | Kaum Rebahan Garis Keras & Militan
-
-## SAYA HANYA HOBBY NGOPREK BUKAN ORANG KOMDIGI
+## 💡 SAYA HANYA HOBBY NGOPREK BUKAN ORANG KOMDIGI
 
 ![Alt](https://repobeats.axiom.co/api/embed/75c94e83220b44df08a86f6dab16eb33d11cfab8.svg "Repobeats analytics image")
-
-
-
