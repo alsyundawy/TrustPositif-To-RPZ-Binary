@@ -458,18 +458,18 @@ main() {
     if ! command -v apt-get &> /dev/null; then
         error_exit "apt-get tidak ditemukan. Skrip hanya bekerja pada distribusi Debian/Ubuntu."
     fi
-
-    install_dependencies
+	
     check_os_version
-    detect_virtualization
-
     fix_hostname
     update_system
+    install_dependencies
+    detect_virtualization
+    
+    handle_port53
     install_bind9
     setup_zones_dir
     download_bind_configs
     validate_bind_config
-    handle_port53
     restart_bind9
     setup_rpz_binary
     setup_cron
