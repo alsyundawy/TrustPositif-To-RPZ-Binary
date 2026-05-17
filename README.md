@@ -1,4 +1,4 @@
-# 🛡️ TrustPositif To RPZ Binary By Harry DS Alsyundawy
+# 🛡️ TrustPositif To RPZ Binary
 
 **TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). ✨
 Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 12 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
@@ -585,6 +585,50 @@ main() {
 
 main "$@"
 ```
+
+## 🚀 Panduan Instalasi Kernel Zabbly (Ubuntu / Debian)
+
+Untuk mendapatkan performa yang optimal, peningkatan stabilitas, dan keamanan tingkat lanjut (*security*) baik pada lingkungan *baremetal* maupun virtualisasi, sangat disarankan untuk menggunakan **Kernel Zabbly** terbaru.
+
+### 1️⃣ Unduh dan Simpan GPG Key
+Anda dapat menggunakan `curl` atau `wget` untuk menyimpan kunci otentikasi Zabbly:
+
+**Menggunakan `curl` (Rekomendasi):** 📥
+```bash
+mkdir -p /etc/apt/keyrings/
+curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
+```
+
+**Menggunakan `wget` (Alternative):** 📥
+```bash
+mkdir -p /etc/apt/keyrings/
+wget -q https://pkgs.zabbly.com/key.asc -O /etc/apt/keyrings/zabbly.asc
+```
+
+### 2️⃣ Tambahkan Repositori Stabil
+Jalankan perintah berikut untuk menambahkan repositori Zabbly ke sistem Anda:
+
+```bash
+sh -c 'cat <<EOF > /etc/apt/sources.list.d/zabbly-kernel-stable.sources
+Enabled: yes
+Types: deb
+URIs: https://pkgs.zabbly.com/kernel/stable
+Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/zabbly.asc
+EOF'
+```
+
+### 3️⃣ Install Kernel Zabbly
+Setelah repositori ditambahkan, perbarui daftar paket dan instal kernel Zabbly:
+
+```bash
+apt-get update
+apt-get install linux-zabbly -y
+```
+
+> 💡 **Catatan:** Setelah instalasi selesai, pastikan untuk melakukan *reboot* pada server Anda agar sistem memuat dan menggunakan kernel baru.
 
 ## ⚙️ Cara Install BIND Versi 9.20 / 9.21
 
