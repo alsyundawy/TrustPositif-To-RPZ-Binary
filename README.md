@@ -516,7 +516,7 @@ main "$@"
 
 Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di repositori bawaan distribusi, Anda dapat menggunakan sumber paket tambahan berikut.
 
-### Ubuntu (22.04 / 24.04) – Menggunakan PPA Resmi ISC
+### Ubuntu (22.04 / 24.04) Â– Menggunakan PPA Resmi ISC
 
 ISC menyediakan PPA (Personal Package Archive) resmi untuk Ubuntu yang berisi BIND versi terbaru:
 - **Stabil (9.20):** `ppa:isc/bind`
@@ -534,9 +534,9 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-### Debian (12 / 13) – Menggunakan Repositori deb.sury.org
+### Debian (12 / 13) Â– Menggunakan Repositori deb.sury.org
 
-Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh **Ondrej Surý** di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
+Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh **Ondrej SurÃ½** di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
 
 ```bash
 # Install dependensi
@@ -669,6 +669,10 @@ nslookup -port=5353 example.com
 
 
 **Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui https://www.paypal.me/alsyundawy. Terima kasih atas dukungannya!**
+
+**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui QRIS. Terima kasih atas dukungannya!**
+
+<img width="508" height="574" alt="image" src="https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df" />
 
 
 **Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda**
