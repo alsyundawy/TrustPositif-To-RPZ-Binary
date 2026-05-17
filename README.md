@@ -274,7 +274,8 @@ choose_rpz_source() {
     info "PILIH SUMBER DATABASE RPZ YANG AKAN DIGUNAKAN:"
     info "  1) GITHUB (DEFAULT)"
     info "  2) KOMDIGI"
-    read -rp "Masukkan pilihan [1/2, default: 1]: " rpz_choice
+    read -rp "Masukkan pilihan [1/2, default: 1]: " rpz_choice </dev/tty || rpz_choice=1
+    rpz_choice="${rpz_choice:-1}"
 
     case "${rpz_choice}" in
         2)
@@ -510,7 +511,8 @@ main() {
     # Konfirmasi menjalankan RPZ
     echo ""
     info "Proses instalasi selesai. Apakah Anda ingin langsung menjalankan binary RPZ sekarang?"
-    read -rp "    Jalankan RPZ? [Y/n] " answer
+    read -rp "    Jalankan RPZ? [Y/n] " answer </dev/tty || answer="y"
+    answer="${answer:-y}"
     case "${answer:0:1}" in
         y|Y|"")
             run_rpz
