@@ -2,18 +2,20 @@
 
 # ============================================================
 # Nama       : INSTALL_BIND9_RPZ_SETUP_CONFIGURATOR.SH
-# Deskripsi  : Instalasi dan konfigurasi BIND9 sebagai DNS server
-#              yang dilengkapi Response Policy Zone (RPZ).
-#              Skrip mengunduh berkas konfigurasi dan binary RPZ
-#              dari repositori, lalu menyiapkan cron job agar
-#              pembaruan berjalan otomatis setiap 12 jam.
-#              Dirancang untuk BIND versi 9.18 ke atas.
+# Deskripsi  : Skrip otomasi komprehensif untuk instalasi dan konfigurasi 
+#              BIND9 DNS Server terintegrasi dengan Response Policy Zone (RPZ).
+#              Fitur utama meliputi:
+#              - Deteksi OS (Ubuntu 22.04+ / Debian 12+) & tipe Virtualisasi.
+#              - Penanganan otomatis konflik Port 53 & penyesuaian resolv.conf.
+#              - Pilihan multi-sumber sinkronisasi database RPZ (GitHub / Komdigi).
+#              - Unduhan konfigurasi, binary RPZ, dan penjadwalan pembaruan (12 Jam).
+#              - Pemuatan ulang layanan dinamis dan perbaikan struktur jaringan dasar.
 # Penulis    : Harry Dertin Sutisna Alsyundawy
 # Kontak     : alsyundawy@gmail.com, +628568515212 (WhatsApp/Telegram/Call)
 # Homepage   : https://alsyundawy.com
 # Repositori : https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary
 # Dibuat     : 24 Januari 2025
-# Diperbarui : 17 Mei 2026
+# Diperbarui : 18 Mei 2026
 # Versi      : 2.2
 # Lisensi    : MIT
 # ============================================================
@@ -23,6 +25,9 @@
 #   -u          : cegah penggunaan variabel yang belum diatur
 #   -o pipefail : pipeline gagal jika salah satu bagian gagal
 set -euo pipefail
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------------
 # Variabel warna untuk output terminal
@@ -73,11 +78,7 @@ error_exit() {
     exit 1
 }
 
-check_status() {
-    if [ "${PIPESTATUS[0]:-$?}" -ne 0 ]; then
-        error_exit "$1"
-    fi
-}
+# check_status tidak digunakan secara aktif; dihapus untuk kebersihan kode.
 
 check_url() {
     local url="$1"
@@ -124,7 +125,7 @@ ensure_command() {
     fi
 
     warn "Perintah '${cmd}' tidak ditemukan. Akan diinstal dari paket '${pkg}'..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${pkg}" || \
+    apt-get install -y -qq "${pkg}" || \
         error_exit "Gagal menginstal paket '${pkg}' yang menyediakan '${cmd}'."
     success "Paket '${pkg}' berhasil diinstal."
 }
@@ -178,7 +179,7 @@ check_os_version() {
             fi
             ;;
         *)
-            error_exit "Distribusi '${ID}' tidak didukung. Skrip ini hanya mendukung minimal Ubuntu 22.04 dan Debian 12."
+            error_exit "Distribusi '${ID}' tidak didukung. Skrip ini hanya mendukung minimal Ubuntu 22.04 (Jammy) dan Debian 12 (Bookworm)."
             ;;
     esac
 }
@@ -200,21 +201,23 @@ detect_virtualization() {
         local product
         product=$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)
         case "${product,,}" in
-            *vmware*) virt="vmware" ;;
-            *kvm*|*qemu*) virt="kvm" ;;
-            *proxmox*) virt="kvm" ;;
+            *vmware*)         virt="vmware" ;;
+            *kvm*|*qemu*)    virt="kvm" ;;
+            *proxmox*)        virt="kvm" ;;
         esac
     fi
 
     if [ -z "${virt}" ]; then
         # Fallback: cek dengan lscpu (mungkin tidak ada)
         if command -v lscpu &>/dev/null; then
-            if lscpu | grep -qi "hypervisor vendor"; then
+            local lscpu_out
+            lscpu_out=$(lscpu 2>/dev/null || true)
+            if echo "${lscpu_out}" | grep -qi "hypervisor vendor"; then
                 local hv
-                hv=$(lscpu | grep "Hypervisor vendor" | awk -F: '{print $2}' | xargs)
+                hv=$(echo "${lscpu_out}" | grep -i "Hypervisor vendor" | awk -F: '{print $2}' | xargs)
                 case "${hv,,}" in
                     *vmware*) virt="vmware" ;;
-                    *kvm*) virt="kvm" ;;
+                    *kvm*)    virt="kvm" ;;
                 esac
             fi
         fi
@@ -269,7 +272,7 @@ check_root() {
     if [ "${EUID}" -ne 0 ]; then
         warn "Skrip ini memerlukan hak akses root. Meminta elevasi..."
         exec sudo bash "$0" "$@"
-        exit 1
+        # exec mengganti proses; baris setelah ini tidak akan pernah tercapai
     fi
 }
 
@@ -285,6 +288,12 @@ show_banner() {
     echo "============================================================"
     echo "  PROGRAM : BIND9 DNS Server + RPZ Installer & Configurator"
     echo "  SCRIPT  : ${script_name}"
+    echo "  DESC    : Skrip otomasi instalasi & konfigurasi BIND9"
+    echo "            terintegrasi RPZ dengan dukungan multi-sumber,"
+    echo "            penanganan port 53, setup resolv.conf,"
+    echo "            serta auto-reload layanan,"
+    echo "            deteksi OS (Ubuntu 22.04+ / Debian 12+),"
+    echo "            dan tipe Virtualisasi."
     echo "------------------------------------------------------------"
     echo "  AUTHOR  : Harry Dertin Sutisna Alsyundawy"
     echo "  LICENSE : MIT License (Free & Open Source)"
@@ -295,7 +304,7 @@ show_banner() {
     echo "  HOMEPAGE: https://alsyundawy.com"
     echo "------------------------------------------------------------"
     echo "  VERSION : 2.2"
-    echo "  UPDATED : 17 May 2026"
+    echo "  UPDATED : 18 May 2026"
     echo "  CREATED : 24 Januari 2025"
     echo "  TARGET  : BIND 9.18 ke atas (Debian >=12, Ubuntu >=22.04)"
     echo "------------------------------------------------------------"
@@ -438,6 +447,29 @@ setup_cron() {
     fi
 }
 
+configure_resolv_conf() {
+    info "Mengonfigurasi /etc/resolv.conf untuk menggunakan 127.0.0.1 di urutan pertama..."
+    if [ -L /etc/resolv.conf ]; then
+        warn "/etc/resolv.conf adalah symlink, menggantinya dengan file reguler..."
+        local real_file
+        real_file=$(readlink -f /etc/resolv.conf)
+        rm -f /etc/resolv.conf
+        if [ -f "${real_file}" ]; then
+            cp "${real_file}" /etc/resolv.conf
+        else
+            touch /etc/resolv.conf
+        fi
+    fi
+    sed -i '/^[[:space:]]*nameserver[[:space:]]*127\.0\.0\.1[[:space:]]*$/d' /etc/resolv.conf 2>/dev/null || true
+    local tmp_resolv
+    tmp_resolv=$(mktemp)
+    echo "nameserver 127.0.0.1" > "${tmp_resolv}"
+    cat /etc/resolv.conf >> "${tmp_resolv}" 2>/dev/null || true
+    cat "${tmp_resolv}" > /etc/resolv.conf
+    rm -f "${tmp_resolv}"
+    success "nameserver 127.0.0.1 berhasil ditambahkan di awal baris /etc/resolv.conf."
+}
+
 run_rpz() {
     info "Menjalankan RPZ untuk sinkronisasi awal..."
     "${RPZ_BINARY}" || error_exit "Gagal menjalankan binary RPZ: ${RPZ_BINARY}"
@@ -455,10 +487,10 @@ main() {
     show_banner
     choose_rpz_source
 
-    if ! command -v apt-get &> /dev/null; then
+    if ! command -v apt-get &>/dev/null; then
         error_exit "apt-get tidak ditemukan. Skrip hanya bekerja pada distribusi Debian/Ubuntu."
     fi
-	
+
     check_os_version
     fix_hostname
     update_system
@@ -473,6 +505,7 @@ main() {
     restart_bind9
     setup_rpz_binary
     setup_cron
+    configure_resolv_conf
 
     echo ""
     success "============================================================"
@@ -488,6 +521,10 @@ main() {
     case "${answer:0:1}" in
         y|Y|"")
             run_rpz
+            info "Memuat ulang layanan BIND9..."
+            rndc reload || warn "rndc reload gagal atau belum dikonfigurasi."
+            systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            success "Layanan BIND9 berhasil dimuat ulang."
             ;;
         *)
             info "RPZ tidak dijalankan. Anda dapat menjalankannya nanti dengan perintah:"
