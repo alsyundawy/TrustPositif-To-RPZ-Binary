@@ -13,8 +13,8 @@
 # Homepage   : https://alsyundawy.com
 # Repositori : https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary
 # Dibuat     : 24 Januari 2025
-# Diperbarui : 11 Mei 2026
-# Versi      : 2.1
+# Diperbarui : 17 Mei 2026
+# Versi      : 2.2
 # Lisensi    : MIT
 # ============================================================
 
@@ -41,7 +41,7 @@ readonly ZONES_DIR="${BIND_DIR}/zones"
 readonly RPZ_BINARY="/usr/local/bin/rpz"
 readonly LOG_FILE="/var/log/install_bind9_rpz.log"
 readonly REPO_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind"
-readonly RPZ_URL="https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/raw/refs/heads/main/rpz"
+RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/rpz"
 
 # Daftar berkas konfigurasi yang akan diambil dari repositori
 readonly -a CONFIG_FILES=(
@@ -178,7 +178,7 @@ check_os_version() {
             fi
             ;;
         *)
-            warn "Distribusi '${ID}' bukan Debian atau Ubuntu. Kompatibilitas tidak terjamin. Pastikan sistem menggunakan BIND 9.18+."
+            error_exit "Distribusi '${ID}' tidak didukung. Skrip ini hanya mendukung minimal Ubuntu 22.04 dan Debian 12."
             ;;
     esac
 }
@@ -238,6 +238,29 @@ detect_virtualization() {
 }
 
 # ============================================================
+# Pemilihan sumber RPZ
+# ============================================================
+
+choose_rpz_source() {
+    echo ""
+    info "PILIH SUMBER DATABASE RPZ YANG AKAN DIGUNAKAN:"
+    info "  1) GITHUB (DEFAULT)"
+    info "  2) KOMDIGI"
+    read -rp "Masukkan pilihan [1/2, default: 1]: " rpz_choice
+
+    case "${rpz_choice}" in
+        2)
+            info "MENGGUNAKAN DATABASE RPZ DARI KOMDIGI."
+            RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/rpz-komdigi-database"
+            ;;
+        *)
+            info "MENGGUNAKAN DATABASE RPZ DARI GITHUB (DEFAULT)."
+            RPZ_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/rpz"
+            ;;
+    esac
+}
+
+# ============================================================
 # Tahapan instalasi dan konfigurasi
 # ============================================================
 
@@ -270,8 +293,8 @@ show_banner() {
     echo "            +628568515212 (WhatsApp/Telegram/Call)"
     echo "  HOMEPAGE: https://alsyundawy.com"
     echo "------------------------------------------------------------"
-    echo "  VERSION : 2.1"
-    echo "  UPDATED : 11 May 2026"
+    echo "  VERSION : 2.2"
+    echo "  UPDATED : 17 May 2026"
     echo "  CREATED : 24 Januari 2025"
     echo "  TARGET  : BIND 9.18 ke atas (Debian >=12, Ubuntu >=22.04)"
     echo "------------------------------------------------------------"
@@ -429,6 +452,7 @@ main() {
 
     check_root "$@"
     show_banner
+    choose_rpz_source
 
     if ! command -v apt-get &> /dev/null; then
         error_exit "apt-get tidak ditemukan. Skrip hanya bekerja pada distribusi Debian/Ubuntu."
