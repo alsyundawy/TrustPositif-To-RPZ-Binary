@@ -522,8 +522,21 @@ main() {
         y|Y|"")
             run_rpz
             info "Memuat ulang layanan BIND9..."
-            rndc reload || warn "rndc reload gagal atau belum dikonfigurasi."
-            systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            # Menghindari bentrok (race condition) antara rndc dan systemctl
+            # BIND9 butuh waktu untuk memuat zona RPZ yang besar
+            if rndc reload; then
+                # Beri jeda singkat agar systemd tidak mencoba me-reload saat BIND9 masih sibuk
+                sleep 2
+                systemctl reload-or-restart named >/dev/null 2>&1 || true
+                
+                # Verifikasi bahwa BIND9 tetap aktif setelah proses reload
+                if ! systemctl is-active --quiet named; then
+                    systemctl restart named || error_exit "Gagal memuat ulang layanan BIND9."
+                fi
+            else
+                warn "rndc reload gagal atau belum dikonfigurasi. Mencoba systemctl..."
+                systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            fi
             success "Layanan BIND9 berhasil dimuat ulang."
             ;;
         *)
