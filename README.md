@@ -1,4 +1,4 @@
-# 🛡️ TrustPositif To RPZ Binary By Harry DS Alsyundawy
+# 🛡️ TrustPositif To RPZ Binary
 
 **TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). ✨
 Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 12 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
@@ -563,8 +563,21 @@ main() {
         y|Y|"")
             run_rpz
             info "Memuat ulang layanan BIND9..."
-            rndc reload || warn "rndc reload gagal atau belum dikonfigurasi."
-            systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            # Menghindari bentrok (race condition) antara rndc dan systemctl
+            # BIND9 butuh waktu untuk memuat zona RPZ yang besar
+            if rndc reload; then
+                # Beri jeda singkat agar systemd tidak mencoba me-reload saat BIND9 masih sibuk
+                sleep 2
+                systemctl reload-or-restart named >/dev/null 2>&1 || true
+                
+                # Verifikasi bahwa BIND9 tetap aktif setelah proses reload
+                if ! systemctl is-active --quiet named; then
+                    systemctl restart named || error_exit "Gagal memuat ulang layanan BIND9."
+                fi
+            else
+                warn "rndc reload gagal atau belum dikonfigurasi. Mencoba systemctl..."
+                systemctl reload-or-restart named || error_exit "Gagal memuat ulang layanan BIND9."
+            fi
             success "Layanan BIND9 berhasil dimuat ulang."
             ;;
         *)
