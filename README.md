@@ -538,15 +538,16 @@ main "$@"
 ````
 
 
-## Cara Install BIND Versi 9.20 / 9.21
+# Cara Install BIND Versi 9.20 / 9.21
 
 Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di repositori bawaan distribusi, Anda dapat menggunakan sumber paket tambahan berikut.
 
-### Ubuntu (22.04 / 24.04)  Menggunakan PPA Resmi ISC
+## Ubuntu (22.04 / 24.04) — Menggunakan PPA Resmi ISC
 
 ISC menyediakan PPA (Personal Package Archive) resmi untuk Ubuntu yang berisi BIND versi terbaru:
-- **Stabil (9.20):** `ppa:isc/bind`
-- **Pengembangan (9.21):** `ppa:isc/bind-dev`
+
+- Stabil (9.20): `ppa:isc/bind`
+- Pengembangan (9.21): `ppa:isc/bind-dev`
 
 ```bash
 # Tambahkan PPA (pilih salah satu)
@@ -560,9 +561,9 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-### Debian (12 / 13)  Menggunakan Repositori deb.sury.org
+## Debian (12 / 13) — Menggunakan Repositori deb.sury.org
 
-Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh **Ondrej Surý** di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
+Untuk Debian, ISC merekomendasikan repositori yang dikelola oleh Ondrej Surý di `packages.sury.org`. Repositori ini menyediakan paket BIND yang lebih baru dibandingkan repositori bawaan Debian:
 
 ```bash
 # Install dependensi
@@ -575,6 +576,7 @@ sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb \
 sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
 
 # Tambahkan repositori BIND (pilih salah satu)
+
 # Versi stabil 9.20:
 sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/bind/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/bind.list'
 
@@ -586,7 +588,10 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-> **Catatan:** Versi 9.21 adalah cabang pengembangan (*development*) dan ditujukan untuk pengujian, **bukan** untuk lingkungan produksi. Untuk server produksi, gunakan versi stabil 9.20.
+## Catatan
+
+- Versi 9.21 adalah cabang pengembangan (development) dan ditujukan untuk pengujian, bukan untuk lingkungan produksi.
+- Untuk server produksi, gunakan versi stabil 9.20.
 
 ## Setup Crontab Auto Update Database Setiap 12 Jam
 
