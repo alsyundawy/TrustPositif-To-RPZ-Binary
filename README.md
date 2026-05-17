@@ -598,11 +598,26 @@ crontab -e
 
 ## Script untuk Auto Install & Konfig
 
+Anda dapat mengunduh dan mengeksekusi skrip instalasi secara otomatis dengan menggunakan salah satu perintah di bawah ini (silakan pilih salah satu, `curl` atau `wget`).
+
+**Menggunakan `curl` (Rekomendasi):**
+
 ````
 
 curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 
 ````
+
+**Menggunakan `wget` (Altenative):**
+
+````
+
+wget -qO- https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
+
+````
+
+
+
 <img width="997" alt="image" src="https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c" />
 -
 
