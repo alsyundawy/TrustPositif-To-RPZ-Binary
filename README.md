@@ -678,7 +678,11 @@ nslookup -port=5353 example.com
 **Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda**
 
 
+**Jangan semangat tetap putus asa, tetaplah mengeluh meski gak ada yang pedulikan. Ketika yang lain bisa kenapa harus saya, ketika yang lain tidak bisa apalagi saya. Tetaplah hidup meski tidak berguna, maju tak gentar membela yang bayar !!!! Yoi, ya begitulah .....**
+
 ### Anda Memang Luar Biasa | Harry DS Alsyundawy | Kaum Rebahan Garis Keras & Militan
+
+## SAYA HANYA HOBBY NGOPREK BUKAN ORANG KOMDIGI
 
 ![Alt](https://repobeats.axiom.co/api/embed/75c94e83220b44df08a86f6dab16eb33d11cfab8.svg "Repobeats analytics image")
 
