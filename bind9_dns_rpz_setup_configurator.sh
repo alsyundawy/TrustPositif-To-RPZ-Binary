@@ -521,17 +521,8 @@ main() {
     case "${answer:0:1}" in
         y|Y|"")
             run_rpz
-            info "Memuat ulang layanan BIND9..."
-            
-            if systemctl is-active --quiet named; then
-                rndc reconfig
-                rndc reload || error_exit "Perintah rndc reload gagal dieksekusi."
-            else
-                systemctl start named || error_exit "Gagal menjalankan layanan BIND9."
-            fi
-            
-            success "Layanan BIND9 berhasil dimuat ulang."
-            ;;
+            success "RPZ berhasil dijalankan."
+            ;;  
         *)
             info "RPZ tidak dijalankan. Anda dapat menjalankannya nanti dengan perintah:"
             info "  ${RPZ_BINARY}"
