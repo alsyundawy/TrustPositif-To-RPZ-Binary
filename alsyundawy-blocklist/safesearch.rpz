@@ -1,8 +1,8 @@
 ;
 ;###########################################################################################
 ;
-; FILE GENERATED ON  : 17-May-26
-; VERSION            : 202605172
+; FILE GENERATED ON  : 21-May-26
+; VERSION            : 2026052180
 ; SYNTAX             : RPZ
 ; AUTHORS            : HARRY DERTIN SUTISNA ALSYUNDAWY
 ; CONTACT            : alsyundawy@gmail.com, +628568515212 (WHATSAPP/TELEGRAM/CALL)
@@ -16,7 +16,7 @@ $TTL 300
 
 
 @ IN SOA dnstrust.alsyundawy.com. alsyundawy.alsyundawy.com. (
-                    202605172 ; Serial
+                    2026052180 ; Serial
                     600         ; Refresh
                     300         ; Retry
                     43200       ; Expire
@@ -408,8 +408,6 @@ www.google.cat                                 IN  CNAME  forcesafesearch.google
 ; ==============================================================================
 ; OTHER SEARCH ENGINES (BING, DUCKDUCKGO, YANDEX)
 ; ==============================================================================
-bing.com                                       3600  IN  CNAME  strict.bing.com.
-www.bing.com                                   3600  IN  CNAME  strict.bing.com.
 duckduckgo.com                                 3600  IN  CNAME  safe.duckduckgo.com.
 www.duckduckgo.com                             3600  IN  CNAME  safe.duckduckgo.com.
 duck.com                                       3600  IN  CNAME  safe.duckduckgo.com.
