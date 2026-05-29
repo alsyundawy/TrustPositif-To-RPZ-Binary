@@ -2,7 +2,7 @@
 ;###########################################################################################
 ;
 ; FILE GENERATED ON  : 29-May-26
-; VERSION            : 2026052927
+; VERSION            : 202605299
 ; SYNTAX             : RPZ
 ; AUTHORS            : HARRY DERTIN SUTISNA ALSYUNDAWY
 ; CONTACT            : alsyundawy@gmail.com, +628568515212 (WHATSAPP/TELEGRAM/CALL)
@@ -16,7 +16,7 @@ $TTL 300
 
 
 @ IN SOA dnstrust.alsyundawy.com. alsyundawy.alsyundawy.com. (
-                    2026052927 ; Serial
+                    202605299 ; Serial
                     600         ; Refresh
                     300         ; Retry
                     43200       ; Expire
