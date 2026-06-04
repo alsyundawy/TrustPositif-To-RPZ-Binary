@@ -694,3 +694,6 @@ talkx.l.google.com
 toolbar.google.com
 ytimg-edge-static.l.google.com
 ytstatic.l.google.com
+forcesafesearch.google.com
+lamanlabuh.resolver.id
+resolver.id
