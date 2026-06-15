@@ -3,7 +3,7 @@
 ;
 ; FILE GENERATED ON  : 15-Jun-2026
 ; SCRIPT VERSION     : 1.0.8_2026-06-10_alsyundawy
-; SOA SERIAL         : 2026061522
+; SOA SERIAL         : 2026061529
 ; SYNTAX             : RPZ
 ; AUTHORS            : HARRY DERTIN SUTISNA ALSYUNDAWY
 ; CONTACT            : alsyundawy@gmail.com, +628568515212 (WHATSAPP/TELEGRAM/CALL)
@@ -15,7 +15,7 @@
 $TTL 300
 
 @ IN SOA dnstrust.alsyundawy.com. alsyundawy.alsyundawy.com. (
-                    2026061522 ; Serial
+                    2026061529 ; Serial
                     600         ; Refresh
                     300         ; Retry
                     43200       ; Expire
@@ -60,6 +60,8 @@ adwcleaner.toolslib.net IN CNAME rpz-passthru.
 *.adwcleaner.toolslib.net IN CNAME rpz-passthru.
 ae01.alicdn.com IN CNAME rpz-passthru.
 *.ae01.alicdn.com IN CNAME rpz-passthru.
+agent.lionair.co.id IN CNAME rpz-passthru.
+*.agent.lionair.co.id IN CNAME rpz-passthru.
 agoda.com IN CNAME rpz-passthru.
 *.agoda.com IN CNAME rpz-passthru.
 akadns.net IN CNAME rpz-passthru.
@@ -250,6 +252,8 @@ blocklist.addons.mozilla.org IN CNAME rpz-passthru.
 *.blocklist.addons.mozilla.org IN CNAME rpz-passthru.
 bondedsender.org IN CNAME rpz-passthru.
 *.bondedsender.org IN CNAME rpz-passthru.
+book.citilink.co.id IN CNAME rpz-passthru.
+*.book.citilink.co.id IN CNAME rpz-passthru.
 booking.com IN CNAME rpz-passthru.
 *.booking.com IN CNAME rpz-passthru.
 bookmarks.sr.roku.com IN CNAME rpz-passthru.
@@ -320,6 +324,8 @@ citibank.co.id IN CNAME rpz-passthru.
 *.citibank.co.id IN CNAME rpz-passthru.
 citibank.com IN CNAME rpz-passthru.
 *.citibank.com IN CNAME rpz-passthru.
+citilink.co.id IN CNAME rpz-passthru.
+*.citilink.co.id IN CNAME rpz-passthru.
 cj.dotomi.com IN CNAME rpz-passthru.
 *.cj.dotomi.com IN CNAME rpz-passthru.
 classic.avantlink.com IN CNAME rpz-passthru.
@@ -480,6 +486,8 @@ enterprise.google.com IN CNAME rpz-passthru.
 *.enterprise.google.com IN CNAME rpz-passthru.
 epicgames.com IN CNAME rpz-passthru.
 *.epicgames.com IN CNAME rpz-passthru.
+esbcore.co.id IN CNAME rpz-passthru.
+*.esbcore.co.id IN CNAME rpz-passthru.
 etrk.asus.com IN CNAME rpz-passthru.
 *.etrk.asus.com IN CNAME rpz-passthru.
 eulatracking-public-service-prod.ak.epicgames.com IN CNAME rpz-passthru.
@@ -752,6 +760,8 @@ licensing.mp.microsoft.com IN CNAME rpz-passthru.
 *.licensing.mp.microsoft.com IN CNAME rpz-passthru.
 links.iterable.com IN CNAME rpz-passthru.
 *.links.iterable.com IN CNAME rpz-passthru.
+lionair.co.id IN CNAME rpz-passthru.
+*.lionair.co.id IN CNAME rpz-passthru.
 live-manifest-a.hulustream.com IN CNAME rpz-passthru.
 *.live-manifest-a.hulustream.com IN CNAME rpz-passthru.
 live-mediashield-hulustream-com.akamaized.net IN CNAME rpz-passthru.
@@ -778,6 +788,8 @@ logincdn.msftauth.net IN CNAME rpz-passthru.
 *.logincdn.msftauth.net IN CNAME rpz-passthru.
 loklok.com IN CNAME rpz-passthru.
 *.loklok.com IN CNAME rpz-passthru.
+lwms.mdka.co.id IN CNAME rpz-passthru.
+*.lwms.mdka.co.id IN CNAME rpz-passthru.
 mail-abuse.com IN CNAME rpz-passthru.
 *.mail-abuse.com IN CNAME rpz-passthru.
 mailer.netflix.com IN CNAME rpz-passthru.
@@ -800,6 +812,8 @@ maxcdn.bootstrapcdn.com IN CNAME rpz-passthru.
 *.maxcdn.bootstrapcdn.com IN CNAME rpz-passthru.
 maxindo.net.id IN CNAME rpz-passthru.
 *.maxindo.net.id IN CNAME rpz-passthru.
+mdka.co.id IN CNAME rpz-passthru.
+*.mdka.co.id IN CNAME rpz-passthru.
 mdw-efz.ms-acdc.office.com IN CNAME rpz-passthru.
 *.mdw-efz.ms-acdc.office.com IN CNAME rpz-passthru.
 media-amazon.com IN CNAME rpz-passthru.
@@ -1188,6 +1202,8 @@ sugarsync.com IN CNAME rpz-passthru.
 *.sugarsync.com IN CNAME rpz-passthru.
 suggestqueries-clients6.youtube.com IN CNAME rpz-passthru.
 *.suggestqueries-clients6.youtube.com IN CNAME rpz-passthru.
+superindo.co.id IN CNAME rpz-passthru.
+*.superindo.co.id IN CNAME rpz-passthru.
 supportkb.dell.com IN CNAME rpz-passthru.
 *.supportkb.dell.com IN CNAME rpz-passthru.
 surbl.org IN CNAME rpz-passthru.
@@ -1396,6 +1412,8 @@ xboxlive.com IN CNAME rpz-passthru.
 *.xboxlive.com IN CNAME rpz-passthru.
 xsts.auth.xboxlive.com IN CNAME rpz-passthru.
 *.xsts.auth.xboxlive.com IN CNAME rpz-passthru.
+xtra.superindo.co.id IN CNAME rpz-passthru.
+*.xtra.superindo.co.id IN CNAME rpz-passthru.
 yahoo.com IN CNAME rpz-passthru.
 *.yahoo.com IN CNAME rpz-passthru.
 yahoodns.net IN CNAME rpz-passthru.

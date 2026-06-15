@@ -701,3 +701,12 @@ debian.org
 ubuntu.com
 kernel.org
 zabbly.com
+xtra.superindo.co.id
+superindo.co.id
+lwms.mdka.co.id
+mdka.co.id
+agent.lionair.co.id
+lionair.co.id
+book.citilink.co.id
+citilink.co.id
+esbcore.co.id
