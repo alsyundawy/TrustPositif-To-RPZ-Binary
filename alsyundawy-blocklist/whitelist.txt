@@ -697,3 +697,7 @@ ytstatic.l.google.com
 forcesafesearch.google.com
 lamanlabuh.resolver.id
 resolver.id
+debian.org
+ubuntu.com
+kernel.org
+zabbly.com
