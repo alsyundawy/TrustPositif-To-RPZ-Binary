@@ -675,6 +675,7 @@ qnb.co.id
 qoe-1.yottaa.net
 quantcast.mgr.consensu.org
 qwapi.com
+r2.dev
 ragfair.escapefromtarkov.com
 ratingsedge.rnr.microsoft.com
 realtimesupport.clients6.google.com
