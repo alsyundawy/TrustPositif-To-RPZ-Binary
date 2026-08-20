@@ -1,42 +1,77 @@
 # 🛡️ TrustPositif To RPZ Binary
 
-**TrustPositif To RPZ Binary** adalah file biner yang mengonversi daftar domain TrustPositif dari Kominfo menjadi format DNS RPZ. Mendukung fitur WhiteList dan Google SafeSearch (terbaru!). ✨
-Aplikasi ini dirancang khusus untuk digunakan pada DNS BIND9 di distribusi Linux Debian atau Ubuntu (minimum Debian 12 / Ubuntu 22.04). Saat ini, belum diuji pada Unbound atau distribusi Linux lainnya. Spesifikasi minimum: CPU 2 Core, RAM 8GB. Disarankan menggunakan CPU 4 Core dan RAM 16GB atau lebih untuk performa yang lebih optimal.
+> **Konversi daftar domain TrustPositif Kominfo menjadi format DNS RPZ untuk BIND9 — dengan WhiteList, Google SafeSearch, dan Multi-Source Database.**
 
-[![Latest Version](https://img.shields.io/github/v/release/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/releases)
-[![Maintenance Status](https://img.shields.io/maintenance/yes/9999)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/)
-[![License](https://img.shields.io/github/license/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/blob/master/LICENSE)
-[![GitHub Issues](https://img.shields.io/github/issues/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/alsyundawy/TrustPositif-To-RPZ-Binary)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/pulls)
-[![Donate with PayPal](https://img.shields.io/badge/PayPal-donate-orange)](https://www.paypal.me/alsyundawy)
-[![Sponsor with GitHub](https://img.shields.io/badge/GitHub-sponsor-orange)](https://github.com/sponsors/alsyundawy)
+[![Latest Version](https://img.shields.io/github/v/release/alsyundawy/TrustPositif-To-RPZ-Binary?style=for-the-badge&color=blue)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/releases)
+[![Maintenance](https://img.shields.io/maintenance/yes/9999?style=for-the-badge&color=green)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/blob/master/LICENSE)
+[![Issues](https://img.shields.io/github/issues/alsyundawy/TrustPositif-To-RPZ-Binary?style=for-the-badge&color=red)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/alsyundawy/TrustPositif-To-RPZ-Binary?style=for-the-badge&color=purple)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/pulls)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-orange?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.me/alsyundawy)
 [![GitHub Stars](https://img.shields.io/github/stars/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/network/members)
 [![GitHub Contributors](https://img.shields.io/github/contributors/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/graphs/contributors)
 
-## 📈 Stargazers over time
+---
 
-[![Stargazers over time](https://starchart.cc/alsyundawy/TrustPositif-To-RPZ-Binary.svg?variant=adaptive)](https://starchart.cc/alsyundawy/TrustPositif-To-RPZ-Binary)
+## 📖 Tentang Proyek
 
-**Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Di Gunakan Oleh Internet Service Provider (ISP) Di Indonesia** 🌐
+**TrustPositif To RPZ Binary** adalah aplikasi konversi daftar domain TrustPositif dari Kominfo menjadi format **DNS Response Policy Zone (RPZ)**. Aplikasi ini dirancang khusus untuk digunakan pada **DNS BIND9** di distribusi Linux **Debian** atau **Ubuntu** (minimum Debian 12 / Ubuntu 22.04).
 
-## ⚡ Script untuk Auto Install & Konfig, minimum Debian 12 / Ubuntu 22.04 , Install ISC Bind9
+### ✨ Fitur Utama
 
-Anda dapat mengunduh dan mengeksekusi skrip instalasi secara otomatis dengan menggunakan salah satu perintah di bawah ini (silakan pilih salah satu, `curl` atau `wget`).
+- 🚀 **Auto Install & Konfigurasi** — Instalasi BIND9 + RPZ dalam satu perintah
+- 🔒 **WhiteList Support** — Kelola daftar putih domain yang tidak diblokir
+- 🔍 **Google SafeSearch** — Paksa SafeSearch untuk jaringan pendidikan/instansi
+- 🌐 **Multi-Source Database** — Pilih sumber RPZ: ALSYUNDAWY, KOMDIGI, atau GITHUB
+- ⚡ **Idempoten & Aman** — Script aman dijalankan berulang kali tanpa error
+- 🔄 **Auto Update 12 Jam** — Sinkronisasi otomatis database RPZ via cron
+- 🛡️ **Port 53 Conflict Handler** — Penanganan otomatis konflik port DNS
+- 📋 **Validasi Konfigurasi** — Verifikasi BIND9 sebelum reload
+- 📦 **Binary RPZ Terpisah** — Database RPZ sebagai binary executable di `/usr/local/bin/rpz`
+- 🖥️ **Deteksi Virtualisasi** — Auto-install guest tools (VMware/KVM)
+- 🔐 **Security Hardened** — Permission management, cleanup trap, dan secure download
 
-**Menggunakan `curl` (Rekomendasi):** 📥
+### 📋 Spesifikasi Minimum
+
+| Komponen | Minimum | Rekomendasi |
+| ---------- | --------- | ------------- |
+| **CPU** | 2 Core | 4 Core |
+| **RAM** | 8 GB | 16 GB |
+| **OS** | Debian 12 / Ubuntu 22.04 | Debian 13+ / Ubuntu 24.04+ |
+| **DNS** | BIND9 | BIND9 9.20+ |
+
+### 🎯 Tujuan
+
+**Membuat DNS Recursive + Filter TrustPositif Sendiri Seperti Yang Selayaknya Digunakan Oleh Internet Service Provider (ISP) Di Indonesia** 🌐
+
+---
+
+## 🚀 Quick Start — Auto Install
+
+### 📥 One-Line Installer
+
+Jalankan perintah di bawah ini untuk instalasi otomatis (pilih salah satu):
+
+**Menggunakan `curl` (Rekomendasi):**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 ```
 
-**Menggunakan `wget` (Alternative):** 📥
+**Menggunakan `wget` (Alternative):**
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind9_dns_rpz_setup_configurator.sh | bash
 ```
 
-**Source Code dari file bind9_dns_rpz_setup_configurator.sh:** 💻
+> ⚠️ **Pastikan Anda menjalankan script sebagai root** (atau via `sudo`) karena memerlukan hak administrasi untuk instalasi paket dan konfigurasi sistem.
+
+---
+
+## 📜 Source Code
+
+### `bind9_dns_rpz_setup_configurator.sh`
 
 ```bash
 #!/usr/bin/env bash
@@ -159,10 +194,8 @@ else
 fi
 
 # ------------------------------------------------------------
-# Lokasi direktori dan URL yang digunakan
+# Variabel utama
 # ------------------------------------------------------------
-readonly BIND_DIR="/etc/bind"
-readonly ZONES_DIR="${BIND_DIR}/zones"
 readonly RPZ_BINARY="/usr/local/bin/rpz"
 readonly LOG_FILE="/var/log/install_bind9_rpz.log"
 readonly REPO_URL="https://raw.githubusercontent.com/alsyundawy/TrustPositif-To-RPZ-Binary/refs/heads/main/bind"
@@ -176,7 +209,7 @@ readonly -a CONFIG_FILES=(
     "zones/alsyundawy_whitelist.zones"
 )
 
-# Opsi APT non-interaktif yang tetap mempertahankan konfigurasi lokal lama bila ada konflik.
+# Opsi APT non-interaktif
 readonly -a APT_OPTS=(
     -y
     -qq
@@ -960,29 +993,34 @@ main() {
 }
 
 main "$@"
-
 ```
+
+---
 
 ## 🚀 Panduan Instalasi Kernel Zabbly (Ubuntu / Debian)
 
 Untuk mendapatkan performa yang optimal, peningkatan stabilitas, dan keamanan tingkat lanjut (*security*) baik pada lingkungan *baremetal* maupun virtualisasi, sangat disarankan untuk menggunakan **Kernel Zabbly** terbaru.
 
 ### 1️⃣ Unduh dan Simpan GPG Key
+
 Anda dapat menggunakan `curl` atau `wget` untuk menyimpan kunci otentikasi Zabbly:
 
 **Menggunakan `curl` (Rekomendasi):** 📥
+
 ```bash
 mkdir -p /etc/apt/keyrings/
 curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
 ```
 
 **Menggunakan `wget` (Alternative):** 📥
+
 ```bash
 mkdir -p /etc/apt/keyrings/
 wget -q https://pkgs.zabbly.com/key.asc -O /etc/apt/keyrings/zabbly.asc
 ```
 
 ### 2️⃣ Tambahkan Repositori Stabil
+
 Jalankan perintah berikut untuk menambahkan repositori Zabbly ke sistem Anda:
 
 ```bash
@@ -998,6 +1036,7 @@ EOF'
 ```
 
 ### 3️⃣ Install Kernel Zabbly
+
 Setelah repositori ditambahkan, perbarui daftar paket dan instal kernel Zabbly:
 
 ```bash
@@ -1007,6 +1046,8 @@ apt-get install linux-zabbly -y
 
 > 💡 **Catatan:** Setelah instalasi selesai, pastikan untuk melakukan *reboot* pada server Anda agar sistem memuat dan menggunakan kernel baru.
 
+---
+
 ## ⚙️ Cara Install BIND Versi 9.20 / 9.21
 
 Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di repositori bawaan distribusi, Anda dapat menggunakan sumber paket tambahan berikut.
@@ -1015,8 +1056,8 @@ Untuk memperoleh BIND versi lebih baru (9.20 atau 9.21) yang tidak tersedia di r
 
 ISC menyediakan PPA (Personal Package Archive) resmi untuk Ubuntu yang berisi BIND versi terbaru:
 
-- Stabil (9.20): `ppa:isc/bind`
-- Pengembangan (9.21): `ppa:isc/bind-dev`
+- **Stabil (9.20):** `ppa:isc/bind`
+- **Pengembangan (9.21):** `ppa:isc/bind-dev`
 
 ```bash
 # Tambahkan PPA (pilih salah satu)
@@ -1057,26 +1098,36 @@ sudo apt update
 sudo apt install bind9 bind9-dnsutils bind9-utils
 ```
 
-### 📌 Catatan
+### 📌 Catatan Penting
 
-- Versi 9.21 adalah cabang pengembangan (development) dan ditujukan untuk pengujian, bukan untuk lingkungan produksi.
-- Untuk server produksi, gunakan versi stabil 9.20.
+- ⚠️ **Versi 9.21** adalah cabang pengembangan (development) dan ditujukan untuk pengujian, **bukan untuk lingkungan produksi**.
+- ✅ **Versi 9.20** adalah rilis stabil yang disarankan untuk server produksi.
 
-### ⏰ Setup Crontab Auto Update Database Setiap 12 Jam
+---
+
+## ⏰ Setup Crontab Auto Update Database Setiap 12 Jam
+
+Untuk menjaga database RPZ selalu up-to-date, atur cron job yang menjalankan update setiap 12 jam:
 
 ```bash
-
 crontab -e
+```
 
+Tambahkan baris berikut:
+
+```bash
 * */12 * * * /usr/local/bin/rpz > /dev/null 2>&1
 ```
 
-![image](https://github.com/user-attachments/assets/09c1db0f-d0bc-40fe-b89a-63291e8a000c)
+> 📅 **Interval:** Database akan diperbarui setiap 12 jam secara otomatis.
 
-## 🔒 Access Control Lists (ACLs) Pada Files named.conf.options & IP, sesuaikan dengan ip server dan network
+---
+
+## 🔒 Access Control Lists (ACLs) Pada Files `named.conf.options` & IP
+
+Sesuaikan konfigurasi ACL dengan IP server dan network Anda:
 
 ```conf
-
 // Definisi ACL (Access Control List) untuk jaringan yang diizinkan
 acl localnet {
     // Jaringan private IPv4 (RFC 1918)
@@ -1113,27 +1164,34 @@ options {
     allow-query-cache { localnet; };  // Hanya izinkan query cache untuk `localnet`
 ```
 
-## 🛠️ Troubleshooting DNS Dengan Perintah Dasar NSLOOKUP (Support Semua Operating System)
+---
+
+## 🛠️ Troubleshooting DNS dengan Perintah Dasar NSLOOKUP
+
+Berikut adalah perintah dasar untuk troubleshooting DNS yang support semua operating system:
 
 ```bash
-#BASIC PERINTAH DASAR NSLOOKUP DOMAIN DAN IP (WAJIB DIKETAHUI UNTUK TROBLESHOTING DNS!)
+# BASIC PERINTAH DASAR NSLOOKUP DOMAIN DAN IP (WAJIB DIKETAHUI UNTUK TROBLESHOTING DNS!)
 
+# Lookup domain/IP dengan DNS server tertentu
 nslookup domain/ip ipmesindns
 
+# Lookup dasar
 nslookup domain.tld
 nslookup domain.tld 127.0.0.1
 nslookup domain.tld 192.168.254.254
 
+# Lookup IP address
 nslookup 192.168.254.254
 nslookup 192.168.254.254 127.0.0.1
 nslookup 192.168.254.254 192.168.254.254
 
-#Perintah NSLOOKUP Dengan Menanyakan Query Ke DNS PUBLIK
+# Query ke DNS publik
 nslookup domain.tld 8.8.8.8
 nslookup domain.tld 1.1.1.1
 nslookup domain.tld 9.9.9.9
 
-#Contoh Beberapa Perintah NSLOOKUP
+# Contoh perintah NSLOOKUP dengan query type
 nslookup -query=any example.com
 nslookup -query=ns example.com
 nslookup -query=a example.com
@@ -1141,29 +1199,102 @@ nslookup -query=aaaa example.com
 nslookup -query=mx example.com
 nslookup -query=soa example.com
 
-
-#Perintah NSLOOKUP apabila DNS Server Menggunakan Port Lain Misal Port 5353
+# NSLOOKUP dengan port custom (misal port 5353)
 nslookup -port=5353 example.com
 ```
 
-## 🏗️ Konsep Dasar DNS Master Dan Slave
+---
 
-![image](https://github.com/user-attachments/assets/3dc63900-13c3-4bf3-a1bc-0cf97cb39d88)
+## 🏗️ Konsep Dasar DNS Master dan Slave
 
-![image](https://github.com/user-attachments/assets/46a2e24e-75f0-4053-b486-0b9ac9ef6200)
+Memahami konsep dasar DNS Master dan Slave sangat penting untuk mengelola infrastruktur DNS yang andal dan toleran terhadap kegagalan.
 
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui <https://www.paypal.me/alsyundawy>. Terima kasih atas dukungannya!** ☕
+![DNS Master Slave Concept](https://github.com/user-attachments/assets/3dc63900-13c3-4bf3-a1bc-0cf97cb39d88)
 
-**Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui QRIS. Terima kasih atas dukungannya!** ☕
+![DNS Architecture](https://github.com/user-attachments/assets/46a2e24e-75f0-4053-b486-0b9ac9ef6200)
 
-![image](https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df)
+### 📚 Penjelasan Singkat
+
+- **DNS Master (Primary):** Server DNS utama yang menyimpan salinan authoritative dari zone file. Semua perubahan konfigurasi dilakukan di sini.
+- **DNS Slave (Secondary):** Server DNS cadangan yang menyalin zone file dari master secara periodik. Berfungsi sebagai backup dan load balancer.
+
+### 🔄 Keuntungan Konfigurasi Master-Slave
+
+- **High Availability:** Jika master down, slave tetap melayani query DNS
+- **Load Distribution:** Distribusi beban query antar server
+- **Redundancy:** Backup otomatis data konfigurasi
+- **Geographic Distribution:** Slave dapat diletakkan di lokasi geografis berbeda
+
+---
+
+## 💡 Donasi & Dukungan
+
+Jika Anda merasa terbantu dan ingin mendukung proyek ini, pertimbangkan untuk berdonasi melalui:
+
+**PayPal:** 💳
+
+[![Donate with PayPal](https://img.shields.io/badge/PayPal-donate-orange?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.me/alsyundawy)
+
+**GitHub Sponsor:** ⭐
+
+[![Sponsor with GitHub](https://img.shields.io/badge/GitHub-sponsor-orange?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/alsyundawy)
+
+**QRIS:** 📱
+
+![QRIS Donation](https://github.com/user-attachments/assets/a0126f28-6dde-43da-ba14-d7c9a27de0df)
+
+> Terima kasih atas dukungannya! ☕ Setiap donasi membantu pengembangan proyek ini terus berjalan.
+
+---
+
+## 📝 Lisensi & Kebebasan
 
 **Anda bebas untuk mengubah, mendistribusikan script ini untuk keperluan anda** 📝
 
-**Jangan semangat tetap putus asa, tetaplah mengeluh meski gak ada yang pedulikan. Ketika yang lain bisa kenapa harus saya, ketika yang lain tidak bisa apalagi saya. Tetaplah hidup meski tidak berguna, maju tak gentar membela yang bayar !!!! Yoi, ya begitulah .....** 🤣
+Proyek ini dilisensikan under **MIT License** — bebas digunakan untuk keperluan pribadi, komersial, maupun pendidikan.
+
+---
+
+## 👨‍💻 Tentang Penulis
 
 ### ✨ Anda Memang Luar Biasa | Harry DS Alsyundawy | Kaum Rebahan Garis Keras & Militan ✨
+
+- **Nama:** Harry Dertin Sutisna Alsyundawy
+- **Kontak:** [alsyundawy@gmail.com](mailto:alsyundawy@gmail.com)
+- **WhatsApp/Telegram:** +628568515212
+- **Homepage:** [https://alsyundawy.com](https://alsyundawy.com)
+- **GitHub:** [@alsyundawy](https://github.com/alsyundawy)
+
+> **Jangan semangat tetap putus asa, tetaplah mengeluh meski gak ada yang pedulikan. Ketika yang lain bisa kenapa harus saya, ketika yang lain tidak bisa apalagi saya. Tetaplah hidup meski tidak berguna, maju tak gentar membela yang bayar !!!! Yoi, ya begitulah .....** 🤣
+
+---
 
 ## 💡 SAYA HANYA HOBBY NGOPREK BUKAN ORANG KOMDIGI
 
 ![Alt](https://repobeats.axiom.co/api/embed/75c94e83220b44df08a86f6dab16eb33d11cfab8.svg "Repobeats analytics image")
+
+---
+
+## 🤝 Kontribusi
+
+Kontribusi selalu diterima! Jika Anda menemukan bug, memiliki saran, atau ingin menambahkan fitur baru:
+
+1. 🍴 Fork repository ini
+2. 🌿 Buat branch baru (`git checkout -b feature/amazing-feature`)
+3. 💾 Commit perubahan (`git commit -m 'Add some amazing feature'`)
+4. 📤 Push ke branch (`git push origin feature/amazing-feature`)
+5. 🔄 Buka Pull Request
+
+---
+
+## ⚠️ Disclaimer
+
+Proyek ini dibuat untuk tujuan **edukasi dan keamanan jaringan**. Pengguna bertanggung jawab penuh atas penggunaan script ini. Pastikan untuk mematuhi hukum dan peraturan yang berlaku di wilayah Anda.
+
+---
+
+### Dibuat dengan ❤️ untuk komunitas Indonesia
+
+⭐ **Jika proyek ini bermanfaat, berikan bintang di GitHub!** ⭐
+
+[![GitHub Stars](https://img.shields.io/github/stars/alsyundawy/TrustPositif-To-RPZ-Binary?style=social)](https://github.com/alsyundawy/TrustPositif-To-RPZ-Binary/stargazers)
