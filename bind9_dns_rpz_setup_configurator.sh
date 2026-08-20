@@ -69,6 +69,23 @@
 # - OPTIMIZE: setup_rpz_binary kini menampilkan ukuran file dan 5 baris pertama isi binary sebagai
 #             konfirmasi visual sumber RPZ yang aktif setelah setiap proses download.
 #
+# DOCNOTE v2.5.1:
+# - FIX     : setup_rpz_binary kini mengunduh ke file sementara terlebih dahulu sebelum
+#             mengganti binary lama, mencegah kehilangan data jika unduhan gagal.
+# - FIX     : Duplikasi pesan error pada cleanup_temp_files telah dihilangkan dengan flag ERROR_LOGGED.
+# - SECURITY: File log /var/log/install_bind9_rpz.log kini dibuat dengan permission eksplisit 644.
+# - FIX     : Layanan cron kini di-enable dan di-start otomatis setelah paket cron diinstal
+#             agar jadwal pembaruan RPZ 12-jam benar-benar aktif.
+#
+# CHANGELOG v2.5.1:
+# - FIX     : Data loss risk di setup_rpz_binary - binary lama hanya diganti setelah yang baru
+#             selesai diunduh dan divalidasi (download ke /tmp dulu, lalu mv -f atomik).
+# - FIX     : Duplicate error logging - cleanup_temp_files tidak lagi mencetak pesan ERROR
+#             generik jika error_exit sudah mencetak pesan spesifik sebelumnya.
+# - SECURITY: Permission eksplisit 644 pada /var/log/install_bind9_rpz.log setelah creation.
+# - FIX     : systemctl enable --now cron ditambahkan setelah instalasi paket cron untuk
+#             memastikan scheduler RPZ 12-jam benar-benar berjalan.
+#
 # ============================================================
 
 # Pengaturan keamanan eksekusi:
@@ -128,6 +145,7 @@ readonly -a APT_OPTS=(
 
 # Array penampung file sementara untuk pembersihan otomatis via trap
 declare -a TEMP_FILES=()
+ERROR_LOGGED=0
 
 cleanup_temp_files() {
     local status=$?
@@ -136,7 +154,7 @@ cleanup_temp_files() {
             rm -rf "${tmp}" 2>/dev/null || true
         fi
     done
-    if [ "${status}" -ne 0 ] && [ "${status}" -ne 130 ]; then
+    if [ "${status}" -ne 0 ] && [ "${status}" -ne 130 ] && [ "${ERROR_LOGGED}" -eq 0 ]; then
         printf '\n%b[ERROR]%b Terjadi kegagalan pada skrip (Exit code: %d). Silakan periksa log: %s\n' "${RED}" "${NC}" "${status}" "${LOG_FILE}" >&2
     fi
 }
@@ -168,6 +186,7 @@ info()    { log "INFO" "$1" "$CYAN"; }
 warn()    { log "WARN" "$1" "$YELLOW"; }
 success() { log "OK"   "$1" "$GREEN"; }
 error_exit() {
+    ERROR_LOGGED=1
     log "ERROR" "$1" "$MAGENTA"
     exit 1
 }
@@ -285,6 +304,9 @@ install_dependencies() {
     ensure_command "ss"        "iproute2"
     ensure_command "fuser"     "psmisc"
     ensure_command "crontab"   "cron"
+    if command -v systemctl > /dev/null 2>&1; then
+        systemctl enable --now cron > /dev/null 2>&1 || warn "Gagal mengaktifkan layanan cron."
+    fi
 }
 
 # ============================================================
@@ -718,19 +740,25 @@ setup_rpz_binary() {
 
     check_url "${RPZ_URL}"
 
-    # Hapus atribut immutable jika ada, lalu hapus file lama secara eksplisit
+    local tmp_binary
+    tmp_binary=$(mktemp /tmp/.rpz_binary.XXXXXX) || error_exit "Gagal membuat file sementara."
+    TEMP_FILES+=("${tmp_binary}")
+
+    download_file "${RPZ_URL}" "${tmp_binary}"
+
     if [ -f "${RPZ_BINARY}" ]; then
         if command -v chattr > /dev/null 2>&1; then
             chattr -i "${RPZ_BINARY}" 2>/dev/null || true
         fi
-        rm -f "${RPZ_BINARY}" || error_exit "Gagal menghapus binary RPZ lama: ${RPZ_BINARY}"
-        info "File lama ${RPZ_BINARY} berhasil dihapus."
     fi
 
-    download_file "${RPZ_URL}" "${RPZ_BINARY}"
+    mv -f "${tmp_binary}" "${RPZ_BINARY}" || {
+        rm -f "${tmp_binary}"
+        error_exit "Gagal memindahkan binary RPZ ke: ${RPZ_BINARY}"
+    }
+
     set_permissions "${RPZ_BINARY}" "root:root" "755"
 
-    # Verifikasi: pastikan file baru benar-benar ada dan tidak kosong
     if [ ! -s "${RPZ_BINARY}" ]; then
         error_exit "Binary RPZ tidak ditemukan atau kosong setelah download: ${RPZ_BINARY}"
     fi
@@ -826,6 +854,7 @@ main() {
 
     mkdir -p "$(dirname "${LOG_FILE}")"
     touch "${LOG_FILE}"
+    chmod 644 "${LOG_FILE}" || true
 
     show_banner
     choose_rpz_source
