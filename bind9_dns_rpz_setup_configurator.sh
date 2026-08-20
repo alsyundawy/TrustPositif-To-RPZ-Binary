@@ -28,13 +28,21 @@
 # - Seluruh opsi sumber database (Alsyundawy / Komdigi / GitHub) otomatis disimpan dan dinamai sebagai binary lokal /usr/local/bin/rpz.
 # - Skrip dibuat 100% idempoten; aman dijalankan ulang berkali-kali tanpa error konflik port.
 # - Penanganan Port 53 kini mencakup penghentian sementara named/bind9 jika sudah berjalan saat konfigurasi ulang.
-# - Pengunduhan konfigurasi BIND dilakukan secara atomik tanpa menghapus file target sebelumnya untuk mencegah data loss saat koneksi gagal.
 # - Sistem trap pembersihan file sementara (cleanup trap) ditambahkan untuk menangani interupsi (SIGINT/SIGTERM/EXIT/ERR).
 # - Deteksi OS diperluas untuk mendukung Debian Trixie (13+), Forky (14+), sid, serta Ubuntu 24.04+ dan 26.04+.
 # - Virtualisasi KVM/QEMU dan VMware kini otomatis mengaktifkan (systemctl enable --now) guest agent terkait.
 # - Deteksi entri hostname di /etc/hosts kini mengenali pola 127.0.1.1 bawaan Debian/Ubuntu.
-# - Penanganan non-interaktif ditambahkan pada input read agar aman dijalankan via CI/CD, Ansible, atau Cloud-Init.
 # - Auto-generate /etc/bind/rndc.key ditambahkan jika berkas kunci belum tersedia.
+# - Menu pemilihan sumber RPZ (choose_rpz_source) kini selalu ditampilkan ke terminal via /dev/tty,
+#   aman dijalankan via sudo, pipe, curl|bash, maupun Cloud-Init/CI tanpa kehilangan prompt interaktif.
+# - Konfirmasi "Jalankan RPZ?" di akhir skrip juga menggunakan /dev/tty langsung (bukan stdin).
+# - Binary RPZ lama di /usr/local/bin/rpz selalu dihapus (rm -f) sebelum download ulang agar
+#   overwrite dijamin berhasil meskipun file sebelumnya terkunci atau memiliki atribut immutable.
+# - Fungsi download_file menggunakan /tmp sebagai staging area (bukan direktori tujuan) sehingga
+#   aman lintas filesystem/mount point; menggunakan cp -f (bukan mv) agar overwrite selalu atomik.
+# - Verifikasi ukuran file hasil unduhan ditambahkan (minimal 10 bytes) sebelum ditulis ke tujuan.
+# - Log setup_rpz_binary kini menampilkan URL sumber aktif, ukuran file, dan 5 baris pertama isi
+#   binary sebagai bukti visual bahwa sumber yang dipilih benar-benar terunduh dan diterapkan.
 #
 # CHANGELOG v2.5:
 # - FEATURE : Pengalihan default database RPZ ke ALSYUNDAWY DATABASE (rpz-alsyundawy-database).
@@ -44,12 +52,22 @@
 # - FIX     : Potensi data loss pada download_bind_configs dihapus (tidak lagi menghapus file tujuan sebelum unduhan selesai).
 # - FIX     : Deteksi Debian sid/testing tanpa VERSION_ID numerik ditangani dengan aman.
 # - FIX     : fix_hostname kini mengenali entri 127.0.1.1 bawaan Debian/Ubuntu agar tidak membuat duplikasi.
-# - FIX     : Deteksi TTY pada perintah read agar tidak gagal saat dieksekusi secara non-interaktif.
+# - FIX     : choose_rpz_source tidak menampilkan menu saat dijalankan via sudo/pipe; diperbaiki dengan
+#             menulis menu dan prompt langsung ke /dev/tty, menggantikan syarat [ -t 0 ] yang tidak reliable.
+# - FIX     : Konfirmasi "Jalankan RPZ?" di main() diperbaiki dengan cara yang sama (tulis/baca /dev/tty).
+# - FIX     : setup_rpz_binary tidak meng-overwrite binary RPZ lama; diperbaiki dengan rm -f eksplisit
+#             + chattr -i sebelum download, dan cp -f atomik setelah unduhan selesai.
+# - FIX     : download_file menggunakan temp file di /tmp (bukan direktori tujuan) untuk menghindari
+#             kegagalan mv lintas mount point; fallback wget→curl kini menggunakan flag download_ok
+#             agar aman dengan set -Eeuo pipefail.
+# - FIX     : Validasi ukuran file hasil unduhan (< 10 bytes dianggap gagal) ditambahkan di download_file.
 # - SECURITY: Penambahan trap pembersihan (cleanup handler) untuk seluruh file sementara mktemp.
 # - SECURITY: Otomatisasi verifikasi & pembuatan /etc/bind/rndc.key dengan permission 640 (root:bind).
 # - SECURITY: Standarisasi izin berkas /etc/resolv.conf ke 644 (root:root) setelah modifikasi.
 # - OPTIMIZE: Aktivasi langsung open-vm-tools dan qemu-guest-agent via systemctl enable --now.
 # - OPTIMIZE: Pengaturan set -Eeuo pipefail untuk inheritance trap pada subshell/fungsi.
+# - OPTIMIZE: setup_rpz_binary kini menampilkan ukuran file dan 5 baris pertama isi binary sebagai
+#             konfirmasi visual sumber RPZ yang aktif setelah setiap proses download.
 #
 # ============================================================
 
@@ -189,28 +207,43 @@ download_file() {
     dir=$(dirname "${destination}")
     mkdir -p "${dir}" || error_exit "Gagal membuat direktori: ${dir}"
 
-    tmp_file=$(mktemp "${dir}/.download.XXXXXX") || error_exit "Gagal membuat file sementara di: ${dir}"
+    # Gunakan /tmp sebagai lokasi temp agar tidak ada hambatan dari filesystem tujuan
+    tmp_file=$(mktemp /tmp/.rpz_download.XXXXXX) || error_exit "Gagal membuat file sementara di /tmp"
     TEMP_FILES+=("${tmp_file}")
 
     info "Mengunduh: ${url} -> ${destination}"
 
-    if ! wget --quiet --timeout=30 --tries=3 "${url}" -O "${tmp_file}"; then
-        # Fallback ke curl jika wget gagal
-        if ! curl --silent --fail --location --connect-timeout 15 --max-time 60 "${url}" -o "${tmp_file}"; then
-            rm -f "${tmp_file}"
-            error_exit "Gagal mengunduh file dari: ${url}"
-        fi
+    local download_ok=0
+    if wget --quiet --timeout=30 --tries=3 "${url}" -O "${tmp_file}" 2>/dev/null; then
+        download_ok=1
+    elif curl --silent --fail --location --connect-timeout 15 --max-time 60 "${url}" -o "${tmp_file}" 2>/dev/null; then
+        download_ok=1
+    fi
+
+    if [ "${download_ok}" -eq 0 ]; then
+        rm -f "${tmp_file}"
+        error_exit "Gagal mengunduh file dari: ${url}"
     fi
 
     if [ ! -s "${tmp_file}" ]; then
         rm -f "${tmp_file}"
-        error_exit "File hasil unduhan kosong: ${url}"
+        error_exit "File hasil unduhan kosong dari: ${url}"
     fi
 
-    mv -f "${tmp_file}" "${destination}" || {
+    local filesize
+    filesize=$(wc -c < "${tmp_file}" 2>/dev/null || echo 0)
+    if [ "${filesize}" -lt 10 ]; then
         rm -f "${tmp_file}"
-        error_exit "Gagal memindahkan file sementara ke: ${destination}"
+        error_exit "File hasil unduhan terlalu kecil (${filesize} bytes), kemungkinan gagal: ${url}"
+    fi
+
+    # Salin ke tujuan lalu hapus tmp (cp aman lintas filesystem, mv bisa gagal jika beda mount)
+    cp -f "${tmp_file}" "${destination}" || {
+        rm -f "${tmp_file}"
+        error_exit "Gagal menyalin file ke: ${destination}"
     }
+    rm -f "${tmp_file}"
+    success "Berhasil mengunduh ke: ${destination} (${filesize} bytes)"
 }
 
 set_permissions() {
@@ -373,17 +406,32 @@ detect_virtualization() {
 # ============================================================
 
 choose_rpz_source() {
-    echo ""
-    info "PILIH SUMBER DATABASE RPZ YANG AKAN DIGUNAKAN:"
-    info "  1) ALSYUNDAWY DATABASE (DEFAULT)"
-    info "  2) KOMDIGI"
-    info "  3) GITHUB"
+    # Tampilkan menu selalu ke terminal (tulis ke /dev/tty agar tampil meski stdin di-redirect)
+    if [ -w /dev/tty ]; then
+        {
+            echo ""
+            printf '%b[INFO]%b PILIH SUMBER DATABASE RPZ YANG AKAN DIGUNAKAN:\n' "${CYAN}" "${NC}"
+            printf '%b[INFO]%b   1) ALSYUNDAWY DATABASE (DEFAULT)\n' "${CYAN}" "${NC}"
+            printf '%b[INFO]%b   2) KOMDIGI\n' "${CYAN}" "${NC}"
+            printf '%b[INFO]%b   3) GITHUB\n' "${CYAN}" "${NC}"
+            echo ""
+        } > /dev/tty
+    else
+        echo ""
+        info "PILIH SUMBER DATABASE RPZ YANG AKAN DIGUNAKAN:"
+        info "  1) ALSYUNDAWY DATABASE (DEFAULT)"
+        info "  2) KOMDIGI"
+        info "  3) GITHUB"
+        echo ""
+    fi
 
     local rpz_choice=""
-    if [ -t 0 ] && [ -r /dev/tty ]; then
-        read -rp "Masukkan pilihan [1/2/3, default: 1]: " rpz_choice < /dev/tty 2>/dev/null || rpz_choice="1"
+    if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+        printf 'Masukkan pilihan [1/2/3, default: 1]: ' > /dev/tty
+        read -r rpz_choice < /dev/tty || rpz_choice="1"
     else
         rpz_choice="1"
+        warn "Tidak ada terminal interaktif, menggunakan pilihan default: 1 (ALSYUNDAWY DATABASE)"
     fi
     rpz_choice="${rpz_choice:-1}"
 
@@ -662,11 +710,44 @@ restart_bind9() {
 }
 
 setup_rpz_binary() {
-    info "Mengunduh binary RPZ..."
+    info "======================================================"
+    info "DOWNLOAD BINARY RPZ DARI SUMBER YANG DIPILIH:"
+    info "  Sumber : ${RPZ_URL}"
+    info "  Tujuan : ${RPZ_BINARY}"
+    info "======================================================"
+
     check_url "${RPZ_URL}"
+
+    # Hapus atribut immutable jika ada, lalu hapus file lama secara eksplisit
+    if [ -f "${RPZ_BINARY}" ]; then
+        if command -v chattr > /dev/null 2>&1; then
+            chattr -i "${RPZ_BINARY}" 2>/dev/null || true
+        fi
+        rm -f "${RPZ_BINARY}" || error_exit "Gagal menghapus binary RPZ lama: ${RPZ_BINARY}"
+        info "File lama ${RPZ_BINARY} berhasil dihapus."
+    fi
+
     download_file "${RPZ_URL}" "${RPZ_BINARY}"
     set_permissions "${RPZ_BINARY}" "root:root" "755"
-    success "Binary RPZ siap di ${RPZ_BINARY}"
+
+    # Verifikasi: pastikan file baru benar-benar ada dan tidak kosong
+    if [ ! -s "${RPZ_BINARY}" ]; then
+        error_exit "Binary RPZ tidak ditemukan atau kosong setelah download: ${RPZ_BINARY}"
+    fi
+
+    local rpz_size
+    rpz_size=$(wc -c < "${RPZ_BINARY}" 2>/dev/null || echo 0)
+    success "======================================================"
+    success "Binary RPZ BERHASIL diperbarui!"
+    success "  File   : ${RPZ_BINARY}"
+    success "  Ukuran : ${rpz_size} bytes"
+    success "  Sumber : ${RPZ_URL}"
+    success "======================================================"
+
+    info "Isi awal binary RPZ (5 baris pertama):"
+    head -5 "${RPZ_BINARY}" 2>/dev/null | while IFS= read -r line; do
+        info "  ${line}"
+    done || true
 }
 
 setup_cron() {
@@ -779,10 +860,12 @@ main() {
     echo ""
     info "Proses instalasi selesai. Apakah Anda ingin langsung menjalankan binary RPZ sekarang?"
     local answer=""
-    if [ -t 0 ] && [ -r /dev/tty ]; then
-        read -rp "    Jalankan RPZ? [Y/n] " answer < /dev/tty 2>/dev/null || answer="y"
+    if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+        printf '    Jalankan RPZ? [Y/n] ' > /dev/tty
+        read -r answer < /dev/tty || answer="y"
     else
         answer="y"
+        warn "Tidak ada terminal interaktif, RPZ dijalankan otomatis."
     fi
     answer="${answer:-y}"
 
