@@ -133,6 +133,7 @@ bawaslu.go.id
 bca.co.id
 bcadigital.co.id
 bcasyariah.co.id
+bgp.tools
 bi.go.id
 bing.com
 birdzi.com
@@ -529,6 +530,7 @@ snssdk.com
 sony.com
 sony.tv
 sorbs.net
+sonar.io
 spamcop.net
 spamhaus.org
 speedtest.co
@@ -654,6 +656,7 @@ whatsappbrand.com
 wikimedia.com
 wikipedia.org
 windows.com
+windows.net
 windowsupdate.com
 wistia.com
 wixstatic.com
